@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>frontend</title>
+  <style>
+    @media print {
+
+      /* إخفاء القائمة الجانبية، الهيدر العلوي، وأزرار التحكم والأوامر عند الطباعة */
+      aside,
+      header,
+      button,
+      .no-print {
+        display: none !important;
+      }
+
+      /* جعل حاوية المحتوى الرئيسي تأخذ الشاشة كاملاً وتلغي أي هوامش جانبية */
+      body,
+      html {
+        background: #ffffff !important;
+        color: #000000 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+      }
+
+      /* إزالة تأثيرات الظل والخلفيات الرمادية من الكاردات لجعلها ملائمة لورقة الطباعة البيضاء */
+      div {
+        box-shadow: none !important;
+        border: none !important;
+        background: transparent !important;
+      }
+
+      /* الحفاظ على ظهور الجداول بوضوح وتنسيق رسمي نظيف */
+      table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+      }
+
+      th,
+      td {
+        border: 1px solid #cbd5e1 !important;
+        padding: 8px 12px !important;
+        color: #000 !important;
+      }
+
+      th {
+        background-color: #f1f5f9 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+
+</html>

@@ -1,0 +1,2435 @@
+/* =========================================================
+   PIONEERS HRMS — EMPLOYEE PORTAL
+   Professional Employee Dashboard
+   كل الـCSS Scoped داخل .employee-portal
+========================================================= */
+
+.employee-portal,
+.employee-portal * {
+    box-sizing: border-box;
+}
+
+.employee-portal {
+    width: 100%;
+    min-height: 100vh;
+
+    display: flex;
+    flex-direction: row;
+
+    background: #f6f8fc;
+    color: #172033;
+
+    direction: rtl;
+
+    font-family:
+        "Segoe UI",
+        Tahoma,
+        Arial,
+        sans-serif;
+
+    font-size: 15px;
+}
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
+.employee-portal .employee-sidebar {
+    width: 276px;
+    min-width: 276px;
+    flex: 0 0 276px;
+
+    height: 100vh;
+    min-height: 100vh;
+
+    position: sticky;
+    top: 0;
+    z-index: 30;
+
+    background: #ffffff;
+    border-left: 1px solid #e6eaf0;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.employee-portal .sidebar-brand {
+    height: 88px;
+    padding: 0 24px;
+
+    display: flex;
+    align-items: center;
+    gap: 13px;
+
+    border-bottom: 1px solid #edf0f4;
+}
+
+.employee-portal .brand-mark {
+    width: 44px;
+    height: 44px;
+
+    border-radius: 12px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #172554;
+    color: #ffffff;
+
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.employee-portal .brand-name {
+    color: #172554;
+
+    font-size: 18px;
+    font-weight: 850;
+
+    letter-spacing: 0.4px;
+}
+
+.employee-portal .brand-subtitle {
+    margin-top: 3px;
+
+    color: #8b95a7;
+
+    font-size: 9px;
+    font-weight: 600;
+
+    letter-spacing: 0.6px;
+}
+
+/* =========================================================
+   SIDEBAR PROFILE
+========================================================= */
+
+.employee-portal .sidebar-profile {
+    margin: 23px 17px 20px;
+    padding: 15px;
+
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    background: #f8faff;
+    border: 1px solid #e8edf5;
+    border-radius: 14px;
+}
+
+.employee-portal .profile-avatar {
+    width: 45px;
+    height: 45px;
+    flex-shrink: 0;
+
+    border-radius: 12px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #2563eb;
+    color: #ffffff;
+
+    font-size: 15px;
+    font-weight: 800;
+}
+
+.employee-portal .profile-info {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.employee-portal .profile-info strong {
+    color: #1f2937;
+
+    font-size: 15px;
+    font-weight: 750;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.employee-portal .profile-info span {
+    color: #7b8799;
+    font-size: 13px;
+}
+
+.employee-portal .sidebar-section-label {
+    padding: 0 25px 10px;
+
+    color: #9aa4b4;
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+.employee-portal .employee-navigation {
+    padding: 0 13px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.employee-portal .nav-item {
+    width: 100%;
+    height: 51px;
+
+    border: 0;
+    border-radius: 11px;
+
+    background: transparent;
+    color: #647187;
+
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+    padding: 0 16px;
+
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 650;
+
+    text-align: right;
+
+    transition:
+        background 0.18s ease,
+        color 0.18s ease;
+}
+
+.employee-portal .nav-item:hover {
+    background: #f3f6fc;
+    color: #2563eb;
+}
+
+.employee-portal .nav-item.active {
+    background: #edf3ff;
+    color: #1d4ed8;
+    font-weight: 750;
+}
+
+.employee-portal .employee-icon {
+    width: 24px;
+    height: 24px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    color: currentColor;
+
+    font-size: 18px;
+    line-height: 1;
+}
+
+/* =========================================================
+   SIDEBAR BOTTOM
+========================================================= */
+
+.employee-portal .sidebar-bottom {
+    margin-top: auto;
+    padding: 17px;
+}
+
+.employee-portal .help-box {
+    padding: 13px;
+
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+
+    background: #f8fafc;
+    border: 1px solid #e8edf3;
+    border-radius: 13px;
+
+    margin-bottom: 12px;
+}
+
+.employee-portal .help-icon {
+    width: 31px;
+    height: 31px;
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 9px;
+
+    background: #eaf0ff;
+    color: #2563eb;
+
+    font-weight: 800;
+}
+
+.employee-portal .help-box strong {
+    display: block;
+
+    margin-bottom: 3px;
+
+    color: #344054;
+
+    font-size: 13px;
+}
+
+.employee-portal .help-box span {
+    display: block;
+
+    color: #8994a6;
+
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+.employee-portal .logout-button {
+    width: 100%;
+    height: 45px;
+
+    border: 1px solid #e3e8ef;
+    border-radius: 10px;
+
+    background: #ffffff;
+    color: #657185;
+
+    cursor: pointer;
+
+    font-family: inherit;
+
+    font-size: 14px;
+    font-weight: 650;
+
+    transition: 0.18s ease;
+}
+
+.employee-portal .logout-button span {
+    margin-left: 7px;
+    font-size: 17px;
+}
+
+.employee-portal .logout-button:hover {
+    background: #fff7f7;
+    border-color: #ffd5d5;
+    color: #dc2626;
+}
+
+/* =========================================================
+   MAIN
+========================================================= */
+
+.employee-portal .employee-main {
+    flex: 1 1 auto;
+    min-width: 0;
+    width: calc(100% - 276px);
+}
+
+/* =========================================================
+   TOPBAR
+========================================================= */
+
+.employee-portal .employee-topbar {
+    height: 88px;
+
+    position: sticky;
+    top: 0;
+    z-index: 20;
+
+    padding: 0 38px;
+
+    background: rgba(255, 255, 255, 0.97);
+    border-bottom: 1px solid #e6eaf0;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 25px;
+}
+
+.employee-portal .topbar-heading {
+    display: flex;
+    flex-direction: column;
+}
+
+.employee-portal .topbar-kicker {
+    margin-bottom: 3px;
+
+    color: #8994a6;
+
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.employee-portal .topbar-heading h1 {
+    margin: 0;
+
+    color: #172033;
+
+    font-size: 25px;
+    font-weight: 800;
+}
+
+.employee-portal .topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.employee-portal .refresh-button {
+    height: 42px;
+
+    padding: 0 15px;
+
+    border: 1px solid #dfe5ed;
+    border-radius: 9px;
+
+    background: #ffffff;
+    color: #526078;
+
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    font-family: inherit;
+
+    font-size: 13px;
+    font-weight: 650;
+}
+
+.employee-portal .refresh-button:hover {
+    border-color: #b9caf1;
+    color: #2563eb;
+}
+
+.employee-portal .refresh-button:disabled {
+    opacity: 0.6;
+}
+
+.employee-portal .refresh-icon {
+    font-size: 18px;
+}
+
+.employee-portal .spinning {
+    animation: employeeSpin 0.8s linear infinite;
+}
+
+@keyframes employeeSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.employee-portal .topbar-user {
+    padding-right: 18px;
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    border-right: 1px solid #e6eaf0;
+}
+
+.employee-portal .topbar-avatar {
+    width: 42px;
+    height: 42px;
+
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #2563eb;
+    color: #ffffff;
+
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.employee-portal .topbar-user strong {
+    display: block;
+
+    color: #273247;
+
+    font-size: 14px;
+    font-weight: 750;
+}
+
+.employee-portal .topbar-user span {
+    display: block;
+
+    margin-top: 3px;
+
+    color: #8994a6;
+
+    font-size: 12px;
+}
+
+/* =========================================================
+   CONTENT
+========================================================= */
+
+.employee-portal .employee-content {
+    width: 100%;
+    max-width: 1500px;
+
+    margin: 0 auto;
+
+    padding: 34px 38px 55px;
+}
+
+.employee-portal .page-container {
+    width: 100%;
+}
+
+/* =========================================================
+   PAGE INTRO
+========================================================= */
+
+.employee-portal .page-intro {
+    margin-bottom: 27px;
+}
+
+.employee-portal .page-intro>span,
+.employee-portal .panel-title-block>span {
+    color: #2563eb;
+
+    font-size: 13px;
+    font-weight: 750;
+}
+
+.employee-portal .page-intro h2 {
+    margin: 5px 0 7px;
+
+    color: #172033;
+
+    font-size: 31px;
+    font-weight: 800;
+    line-height: 1.35;
+}
+
+.employee-portal .page-intro p {
+    max-width: 700px;
+
+    margin: 0;
+
+    color: #68758a;
+
+    font-size: 15px;
+    line-height: 1.8;
+}
+
+.employee-portal .page-intro-with-action {
+    margin-bottom: 27px;
+
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+
+    gap: 20px;
+}
+
+.employee-portal .page-intro-with-action .page-intro {
+    margin-bottom: 0;
+}
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+.employee-portal .employee-error {
+    margin-bottom: 20px;
+    padding: 14px 17px;
+
+    background: #fff7f7;
+    border: 1px solid #fecaca;
+    border-radius: 11px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    color: #991b1b;
+}
+
+.employee-portal .employee-error div {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.employee-portal .employee-error strong {
+    font-size: 14px;
+}
+
+.employee-portal .employee-error span {
+    font-size: 13px;
+}
+
+.employee-portal .employee-error button {
+    padding: 9px 14px;
+
+    border: 0;
+    border-radius: 8px;
+
+    background: #dc2626;
+    color: #ffffff;
+
+    cursor: pointer;
+
+    font-family: inherit;
+
+    font-size: 12px;
+    font-weight: 650;
+}
+
+/* =========================================================
+   WELCOME
+========================================================= */
+
+.employee-portal .welcome-section {
+    min-height: 184px;
+
+    margin-bottom: 20px;
+    padding: 30px 34px;
+
+    position: relative;
+    overflow: hidden;
+
+    border-radius: 17px;
+
+    background: #172554;
+    color: #ffffff;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 35px;
+}
+
+.employee-portal .welcome-section::before {
+    content: "";
+
+    width: 340px;
+    height: 340px;
+
+    position: absolute;
+
+    left: -170px;
+    top: -180px;
+
+    border: 1px solid rgba(255, 255, 255, 0.08);
+
+    border-radius: 50%;
+}
+
+.employee-portal .welcome-section::after {
+    content: "";
+
+    width: 170px;
+    height: 170px;
+
+    position: absolute;
+
+    left: 30px;
+    bottom: -120px;
+
+    border: 1px solid rgba(255, 255, 255, 0.06);
+
+    border-radius: 50%;
+}
+
+.employee-portal .welcome-copy {
+    position: relative;
+    z-index: 1;
+
+    flex: 1;
+}
+
+.employee-portal .section-eyebrow {
+    display: block;
+
+    margin-bottom: 8px;
+
+    color: #a9c4ff;
+
+    font-size: 13px;
+    font-weight: 650;
+}
+
+.employee-portal .welcome-copy h2 {
+    margin: 0;
+
+    color: #ffffff !important;
+
+    font-size: 31px;
+    font-weight: 750;
+    line-height: 1.5;
+
+    letter-spacing: -0.2px;
+}
+
+.employee-portal .welcome-copy h2 strong {
+    color: #ffffff !important;
+    font-weight: 850;
+}
+
+.employee-portal .welcome-copy p {
+    max-width: 620px;
+
+    margin: 5px 0 0;
+
+    color: #dbe7ff !important;
+
+    font-size: 15px;
+    line-height: 1.9;
+}
+
+.employee-portal .welcome-meta {
+    position: relative;
+    z-index: 1;
+
+    display: flex;
+    align-items: stretch;
+    gap: 10px;
+}
+
+.employee-portal .welcome-date,
+.employee-portal .employee-id-badge {
+    min-width: 135px;
+
+    padding: 14px 16px;
+
+    border: 1px solid rgba(255, 255, 255, 0.11);
+    border-radius: 11px;
+
+    background: rgba(255, 255, 255, 0.08);
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.employee-portal .welcome-date span,
+.employee-portal .employee-id-badge span {
+    margin-bottom: 5px;
+
+    color: #b9c9ed;
+
+    font-size: 11px;
+}
+
+.employee-portal .welcome-date strong,
+.employee-portal .employee-id-badge strong {
+    color: #ffffff;
+
+    font-size: 13px;
+}
+
+/* =========================================================
+   STATS
+========================================================= */
+
+.employee-portal .stats-grid {
+    margin-bottom: 20px;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 14px;
+}
+
+.employee-portal .stat-card {
+    min-height: 137px;
+
+    padding: 20px;
+
+    background: #ffffff;
+    border: 1px solid #e5eaf1;
+    border-radius: 14px;
+
+    box-shadow:
+        0 2px 8px rgba(15, 23, 42, 0.025);
+}
+
+.employee-portal .stat-top {
+    margin-bottom: 14px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.employee-portal .stat-icon {
+    width: 38px;
+    height: 38px;
+
+    border-radius: 10px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 18px;
+    font-weight: 800;
+}
+
+.employee-portal .stat-top>span {
+    color: #8b96a8;
+    font-size: 12px;
+}
+
+.employee-portal .stat-card strong {
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: #172033;
+
+    font-size: 31px;
+    line-height: 1;
+    font-weight: 850;
+}
+
+.employee-portal .stat-card p {
+    margin: 0;
+
+    color: #68758a;
+
+    font-size: 14px;
+    font-weight: 650;
+}
+
+.employee-portal .stat-card.blue .stat-icon {
+    background: #edf3ff;
+    color: #2563eb;
+}
+
+.employee-portal .stat-card.orange .stat-icon {
+    background: #fff7e8;
+    color: #d97706;
+}
+
+.employee-portal .stat-card.green .stat-icon {
+    background: #ecfdf5;
+    color: #059669;
+}
+
+.employee-portal .stat-card.purple .stat-icon {
+    background: #f5f3ff;
+    color: #7c3aed;
+}
+
+/* =========================================================
+   PANELS
+========================================================= */
+
+.employee-portal .dashboard-columns {
+    margin-bottom: 17px;
+
+    display: grid;
+
+    grid-template-columns:
+        1.2fr 0.8fr;
+
+    gap: 17px;
+}
+
+.employee-portal .content-panel {
+    padding: 23px;
+
+    background: #ffffff;
+    border: 1px solid #e5eaf1;
+    border-radius: 14px;
+
+    box-shadow:
+        0 2px 9px rgba(15, 23, 42, 0.025);
+}
+
+.employee-portal .panel-header {
+    margin-bottom: 19px;
+    padding-bottom: 17px;
+
+    border-bottom: 1px solid #edf0f4;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+}
+
+.employee-portal .panel-header>div>span {
+    display: block;
+
+    margin-bottom: 4px;
+
+    color: #8a95a7;
+
+    font-size: 12px;
+    font-weight: 650;
+}
+
+.employee-portal .panel-header h3 {
+    margin: 0;
+
+    color: #1d293d;
+
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.employee-portal .panel-header button {
+    border: 0;
+    background: transparent;
+
+    color: #2563eb;
+
+    cursor: pointer;
+
+    font-family: inherit;
+
+    font-size: 12px;
+    font-weight: 750;
+}
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+.employee-portal .status-badge {
+    padding: 6px 10px;
+
+    border-radius: 999px;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    font-size: 11px;
+    font-weight: 750;
+
+    white-space: nowrap;
+}
+
+.employee-portal .status-badge i {
+    width: 6px;
+    height: 6px;
+
+    border-radius: 50%;
+}
+
+.employee-portal .status-success,
+.employee-portal .status-approved {
+    background: #ecfdf5;
+    color: #047857;
+}
+
+.employee-portal .status-success i,
+.employee-portal .status-approved i {
+    background: #10b981;
+}
+
+.employee-portal .status-warning,
+.employee-portal .status-pending {
+    background: #fff9df;
+    color: #a16207;
+}
+
+.employee-portal .status-warning i,
+.employee-portal .status-pending i {
+    background: #eab308;
+}
+
+.employee-portal .status-danger,
+.employee-portal .status-rejected {
+    background: #fef2f2;
+    color: #b91c1c;
+}
+
+.employee-portal .status-danger i,
+.employee-portal .status-rejected i {
+    background: #ef4444;
+}
+
+.employee-portal .status-neutral {
+    background: #f1f5f9;
+    color: #526078;
+}
+
+.employee-portal .status-neutral i {
+    background: #94a3b8;
+}
+
+/* =========================================================
+   ATTENDANCE
+========================================================= */
+
+.employee-portal .attendance-status-row {
+    margin-bottom: 17px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.employee-portal .attendance-status-row>span:first-child {
+    color: #68758a;
+
+    font-size: 13px;
+    font-weight: 650;
+}
+
+.employee-portal .attendance-time-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 10px;
+}
+
+.employee-portal .time-box {
+    padding: 14px;
+
+    background: #f8fafc;
+    border: 1px solid #edf0f4;
+    border-radius: 10px;
+}
+
+.employee-portal .time-box span {
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: #8994a6;
+
+    font-size: 12px;
+}
+
+.employee-portal .time-box strong {
+    display: block;
+
+    color: #1f2b3f;
+
+    font-size: 19px;
+    font-weight: 800;
+}
+
+/* =========================================================
+   SALARY
+========================================================= */
+
+.employee-portal .salary-main {
+    padding-bottom: 16px;
+
+    border-bottom: 1px solid #edf0f4;
+}
+
+.employee-portal .salary-main span {
+    display: block;
+
+    margin-bottom: 6px;
+
+    color: #7b8799;
+
+    font-size: 12px;
+}
+
+.employee-portal .salary-main strong {
+    color: #172033;
+
+    font-size: 31px;
+    font-weight: 850;
+}
+
+.employee-portal .salary-main strong small {
+    margin-right: 5px;
+
+    color: #2563eb;
+
+    font-size: 12px;
+}
+
+.employee-portal .salary-breakdown {
+    padding-top: 10px;
+}
+
+.employee-portal .money-line {
+    min-height: 34px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.employee-portal .money-line span {
+    color: #748095;
+    font-size: 13px;
+}
+
+.employee-portal .money-line strong {
+    color: #334155;
+    font-size: 13px;
+}
+
+.employee-portal .positive-money {
+    color: #059669 !important;
+}
+
+.employee-portal .negative-money {
+    color: #dc2626 !important;
+}
+
+/* =========================================================
+   MINI LISTS
+========================================================= */
+
+.employee-portal .mini-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.employee-portal .mini-list-row {
+    min-height: 64px;
+
+    display: flex;
+    align-items: center;
+    gap: 11px;
+
+    border-bottom: 1px solid #f0f2f5;
+}
+
+.employee-portal .mini-list-row:last-child {
+    border-bottom: 0;
+}
+
+.employee-portal .mini-row-icon {
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+
+    border-radius: 9px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #edf3ff;
+    color: #2563eb;
+
+    font-size: 17px;
+}
+
+.employee-portal .holiday-mini-icon {
+    background: #ecfdf5;
+    color: #059669;
+}
+
+.employee-portal .mini-row-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.employee-portal .mini-row-content strong {
+    display: block;
+
+    margin-bottom: 3px;
+
+    color: #344054;
+
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.employee-portal .mini-row-content span {
+    color: #8b95a6;
+
+    font-size: 12px;
+}
+
+/* =========================================================
+   EMPTY STATE
+========================================================= */
+
+.employee-portal .empty-state {
+    min-height: 145px;
+
+    padding: 15px;
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    text-align: center;
+}
+
+.employee-portal .empty-icon {
+    width: 45px;
+    height: 45px;
+
+    margin-bottom: 10px;
+
+    border-radius: 12px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #f1f5f9;
+    color: #8995a7;
+
+    font-size: 21px;
+}
+
+.employee-portal .empty-state h3 {
+    margin: 0 0 4px;
+
+    color: #465267;
+
+    font-size: 15px;
+}
+
+.employee-portal .empty-state p {
+    max-width: 330px;
+
+    margin: 0;
+
+    color: #909aab;
+
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+.employee-portal .secondary-action {
+    margin-top: 13px;
+    padding: 9px 15px;
+
+    border: 1px solid #dbe4f7;
+    border-radius: 8px;
+
+    background: #f4f7ff;
+    color: #2563eb;
+
+    cursor: pointer;
+
+    font-family: inherit;
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+/* =========================================================
+   PROFILE
+========================================================= */
+
+.employee-portal .profile-hero {
+    margin-bottom: 17px;
+    padding: 24px;
+
+    background: #ffffff;
+    border: 1px solid #e5eaf1;
+    border-radius: 14px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 17px;
+}
+
+.employee-portal .large-avatar {
+    width: 70px;
+    height: 70px;
+    flex-shrink: 0;
+
+    border-radius: 17px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #172554;
+    color: #ffffff;
+
+    font-size: 22px;
+    font-weight: 850;
+}
+
+.employee-portal .profile-hero-info {
+    flex: 1;
+}
+
+.employee-portal .profile-hero-info>span {
+    color: #2563eb;
+
+    font-size: 12px;
+    font-weight: 750;
+}
+
+.employee-portal .profile-hero-info h2 {
+    margin: 4px 0;
+
+    color: #1d293d;
+
+    font-size: 22px;
+    font-weight: 800;
+}
+
+.employee-portal .profile-hero-info p {
+    margin: 0;
+
+    color: #7d8899;
+
+    font-size: 13px;
+}
+
+.employee-portal .profile-number {
+    padding-right: 28px;
+
+    border-right: 1px solid #e9edf2;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 4px;
+}
+
+.employee-portal .profile-number span {
+    color: #8b96a8;
+    font-size: 11px;
+}
+
+.employee-portal .profile-number strong {
+    color: #2563eb;
+    font-size: 17px;
+}
+
+.employee-portal .panel-title-block {
+    margin-bottom: 22px;
+}
+
+.employee-portal .panel-title-block h3 {
+    margin: 5px 0 0;
+
+    color: #1d293d;
+
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.employee-portal .details-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    border-top: 1px solid #eef1f5;
+    border-right: 1px solid #eef1f5;
+}
+
+.employee-portal .detail-item {
+    padding: 17px;
+
+    border-left: 1px solid #eef1f5;
+    border-bottom: 1px solid #eef1f5;
+}
+
+.employee-portal .detail-item span {
+    display: block;
+
+    margin-bottom: 6px;
+
+    color: #8994a6;
+
+    font-size: 12px;
+}
+
+.employee-portal .detail-item strong {
+    color: #344054;
+
+    font-size: 14px;
+    font-weight: 700;
+}
+
+/* =========================================================
+   ATTENDANCE PAGE
+========================================================= */
+
+.employee-portal .attendance-page-header {
+    margin-bottom: 22px;
+    padding-bottom: 20px;
+
+    border-bottom: 1px solid #eef1f5;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.employee-portal .attendance-page-header span {
+    color: #8b96a8;
+    font-size: 12px;
+}
+
+.employee-portal .attendance-page-header h3 {
+    margin: 5px 0 0;
+
+    color: #1d293d;
+
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.employee-portal .attendance-details-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 13px;
+}
+
+.employee-portal .detail-metric {
+    padding: 18px;
+
+    background: #f8fafc;
+    border: 1px solid #edf0f4;
+    border-radius: 12px;
+}
+
+.employee-portal .metric-icon {
+    width: 36px;
+    height: 36px;
+
+    margin-bottom: 14px;
+
+    border-radius: 9px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #edf3ff;
+    color: #2563eb;
+
+    font-weight: 800;
+}
+
+.employee-portal .detail-metric span {
+    display: block;
+
+    margin-bottom: 5px;
+
+    color: #8490a3;
+
+    font-size: 12px;
+}
+
+.employee-portal .detail-metric strong {
+    color: #273247;
+
+    font-size: 19px;
+    font-weight: 800;
+}
+
+/* =========================================================
+   SALARY PAGE
+========================================================= */
+
+.employee-portal .salary-hero {
+    min-height: 185px;
+
+    margin-bottom: 17px;
+    padding: 28px 31px;
+
+    border-radius: 16px;
+
+    background: #172554;
+    color: #ffffff;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.employee-portal .salary-hero span {
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: #b7c8ed;
+
+    font-size: 13px;
+}
+
+.employee-portal .salary-hero strong {
+    display: block;
+
+    color: #ffffff;
+
+    font-size: 37px;
+    font-weight: 850;
+}
+
+.employee-portal .salary-hero strong small {
+    margin-right: 7px;
+
+    color: #a8bbe5;
+
+    font-size: 13px;
+}
+
+.employee-portal .salary-hero p {
+    margin: 7px 0 0;
+
+    color: #cbd7f0;
+
+    font-size: 13px;
+}
+
+.employee-portal .salary-symbol {
+    width: 85px;
+    height: 85px;
+
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 19px;
+
+    background: rgba(255, 255, 255, 0.08);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: #d9e4ff;
+
+    font-size: 16px;
+    font-weight: 800;
+}
+
+.employee-portal .salary-detail-grid {
+    margin-bottom: 17px;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 13px;
+}
+
+.employee-portal .salary-detail {
+    padding: 18px;
+
+    background: #ffffff;
+    border: 1px solid #e5eaf1;
+    border-radius: 13px;
+}
+
+.employee-portal .salary-detail span {
+    display: block;
+
+    margin-bottom: 8px;
+
+    color: #8792a4;
+
+    font-size: 12px;
+}
+
+.employee-portal .salary-detail strong {
+    color: #263247;
+
+    font-size: 17px;
+    font-weight: 800;
+}
+
+.employee-portal .salary-detail.highlighted {
+    background: #f5f8ff;
+    border-color: #cddafd;
+}
+
+.employee-portal .salary-info-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.employee-portal .info-line {
+    min-height: 52px;
+
+    border-bottom: 1px solid #eef1f5;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.employee-portal .info-line:last-child {
+    border-bottom: 0;
+}
+
+.employee-portal .info-line span {
+    color: #718096;
+    font-size: 14px;
+}
+
+.employee-portal .info-line strong {
+    color: #273247;
+
+    font-size: 14px;
+    font-weight: 750;
+}
+
+/* =========================================================
+   LEAVES
+========================================================= */
+
+.employee-portal .primary-button {
+    min-height: 44px;
+
+    padding: 0 17px;
+
+    border: 0;
+    border-radius: 9px;
+
+    background: #2563eb;
+    color: #ffffff;
+
+    cursor: pointer;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 7px;
+
+    font-family: inherit;
+
+    font-size: 13px;
+    font-weight: 750;
+
+    transition: background 0.18s ease;
+}
+
+.employee-portal .primary-button:hover {
+    background: #1d4ed8;
+}
+
+.employee-portal .primary-button:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+.employee-portal .secondary-button {
+    min-height: 44px;
+
+    padding: 0 17px;
+
+    border: 1px solid #dfe5ed;
+    border-radius: 9px;
+
+    background: #ffffff;
+    color: #5d697d;
+
+    cursor: pointer;
+
+    font-family: inherit;
+
+    font-size: 13px;
+    font-weight: 650;
+}
+
+.employee-portal .leave-summary {
+    margin-bottom: 17px;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 13px;
+}
+
+.employee-portal .leave-summary>div {
+    padding: 18px;
+
+    background: #ffffff;
+    border: 1px solid #e5eaf1;
+    border-radius: 13px;
+}
+
+.employee-portal .leave-summary span {
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: #8994a6;
+
+    font-size: 12px;
+}
+
+.employee-portal .leave-summary strong {
+    color: #263247;
+
+    font-size: 27px;
+    font-weight: 850;
+}
+
+.employee-portal .leave-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.employee-portal .leave-item {
+    min-height: 100px;
+
+    padding: 15px 0;
+
+    border-bottom: 1px solid #edf0f4;
+
+    display: flex;
+    align-items: center;
+
+    gap: 17px;
+}
+
+.employee-portal .leave-item:last-child {
+    border-bottom: 0;
+}
+
+.employee-portal .leave-date-box {
+    width: 120px;
+    min-width: 120px;
+
+    padding: 11px;
+
+    border: 1px solid #edf0f4;
+    border-radius: 11px;
+
+    background: #f7f9fc;
+
+    text-align: center;
+}
+
+.employee-portal .leave-date-box span {
+    display: block;
+
+    color: #344054;
+
+    font-size: 12px;
+    font-weight: 750;
+}
+
+.employee-portal .leave-date-box small {
+    display: block;
+
+    margin: 3px 0;
+
+    color: #9aa4b4;
+
+    font-size: 9px;
+}
+
+.employee-portal .leave-main {
+    flex: 1;
+    min-width: 0;
+}
+
+.employee-portal .leave-main-top {
+    margin-bottom: 5px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+}
+
+.employee-portal .leave-main h3 {
+    margin: 0;
+
+    color: #273247;
+
+    font-size: 15px;
+    font-weight: 750;
+}
+
+.employee-portal .leave-main p {
+    margin: 0;
+
+    color: #8490a3;
+
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+.employee-portal .leave-actions {
+    min-width: 75px;
+}
+
+.employee-portal .delete-leave-button {
+    border: 0;
+    background: transparent;
+
+    color: #dc2626;
+
+    cursor: pointer;
+
+    font-family: inherit;
+
+    font-size: 12px;
+    font-weight: 650;
+}
+
+.employee-portal .delete-leave-button:disabled {
+    opacity: 0.5;
+    cursor: wait;
+}
+
+/* =========================================================
+   HOLIDAYS
+========================================================= */
+
+.employee-portal .holiday-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.employee-portal .holiday-item {
+    min-height: 90px;
+
+    border-bottom: 1px solid #eef1f5;
+
+    display: flex;
+    align-items: center;
+
+    gap: 16px;
+}
+
+.employee-portal .holiday-item:last-child {
+    border-bottom: 0;
+}
+
+.employee-portal .holiday-icon {
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+
+    border-radius: 12px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #ecfdf5;
+    color: #059669;
+
+    font-size: 20px;
+}
+
+.employee-portal .holiday-content {
+    flex: 1;
+}
+
+.employee-portal .holiday-content span {
+    color: #059669;
+
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.employee-portal .holiday-content h3 {
+    margin: 4px 0 0;
+
+    color: #273247;
+
+    font-size: 15px;
+    font-weight: 750;
+}
+
+.employee-portal .holiday-date {
+    color: #526078;
+
+    font-size: 13px;
+    font-weight: 700;
+}
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+.employee-portal .modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+
+    padding: 20px;
+
+    background: rgba(15, 23, 42, 0.46);
+
+    backdrop-filter: blur(3px);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.employee-portal .leave-modal {
+    width: min(620px, 100%);
+    max-height: calc(100vh - 40px);
+
+    overflow-y: auto;
+
+    background: #ffffff;
+
+    border-radius: 17px;
+
+    box-shadow:
+        0 25px 70px rgba(15, 23, 42, 0.2);
+}
+
+.employee-portal .modal-header {
+    padding: 24px 25px 20px;
+
+    border-bottom: 1px solid #edf0f4;
+
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 20px;
+}
+
+.employee-portal .modal-header>div>span {
+    color: #2563eb;
+
+    font-size: 11px;
+    font-weight: 750;
+}
+
+.employee-portal .modal-header h2 {
+    margin: 5px 0;
+
+    color: #1d293d;
+
+    font-size: 22px;
+    font-weight: 800;
+}
+
+.employee-portal .modal-header p {
+    margin: 0;
+
+    color: #8792a4;
+
+    font-size: 12px;
+}
+
+.employee-portal .modal-close {
+    width: 34px;
+    height: 34px;
+
+    border: 0;
+    border-radius: 8px;
+
+    background: #f4f6f9;
+    color: #68758a;
+
+    cursor: pointer;
+
+    font-size: 22px;
+}
+
+.employee-portal .leave-form {
+    padding: 23px 25px 25px;
+}
+
+.employee-portal .form-grid {
+    display: grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    gap: 17px;
+}
+
+.employee-portal .form-field {
+    display: flex;
+    flex-direction: column;
+
+    gap: 7px;
+}
+
+.employee-portal .form-field.full {
+    grid-column: 1 / -1;
+}
+
+.employee-portal .form-field label {
+    color: #455166;
+
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.employee-portal .form-field input,
+.employee-portal .form-field select,
+.employee-portal .form-field textarea {
+    width: 100%;
+
+    border: 1px solid #dfe5ed;
+    border-radius: 9px;
+
+    background: #fbfcfe;
+    color: #263247;
+
+    outline: none;
+
+    font-family: inherit;
+
+    font-size: 14px;
+}
+
+.employee-portal .form-field input,
+.employee-portal .form-field select {
+    height: 46px;
+
+    padding: 0 12px;
+}
+
+.employee-portal .form-field textarea {
+    padding: 11px 12px;
+
+    resize: vertical;
+
+    line-height: 1.7;
+}
+
+.employee-portal .form-field input:focus,
+.employee-portal .form-field select:focus,
+.employee-portal .form-field textarea:focus {
+    border-color: #7ca4ff;
+
+    background: #ffffff;
+
+    box-shadow:
+        0 0 0 3px rgba(37, 99, 235, 0.08);
+}
+
+.employee-portal .form-error {
+    margin-top: 15px;
+    padding: 10px 12px;
+
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+
+    background: #fff4f4;
+    color: #b91c1c;
+
+    font-size: 12px;
+}
+
+.employee-portal .modal-actions {
+    margin-top: 21px;
+    padding-top: 18px;
+
+    border-top: 1px solid #edf0f4;
+
+    display: flex;
+    justify-content: flex-start;
+
+    gap: 9px;
+}
+
+/* =========================================================
+   LOADING
+========================================================= */
+
+.employee-portal .employee-loading-page {
+    min-height: 100vh;
+
+    background: #f6f8fc;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-family:
+        "Segoe UI",
+        Tahoma,
+        Arial,
+        sans-serif;
+}
+
+.employee-portal .employee-loader {
+    text-align: center;
+}
+
+.employee-portal .employee-loader-ring {
+    width: 46px;
+    height: 46px;
+
+    margin: 0 auto 17px;
+
+    border: 4px solid #dbe5fb;
+    border-top-color: #2563eb;
+
+    border-radius: 50%;
+
+    animation:
+        employeeSpin 0.8s linear infinite;
+}
+
+.employee-portal .employee-loader h2 {
+    margin: 0;
+
+    color: #263247;
+
+    font-size: 20px;
+}
+
+.employee-portal .employee-loader p {
+    margin: 7px 0 0;
+
+    color: #8994a6;
+
+    font-size: 14px;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1200px) {
+
+    .employee-portal .employee-sidebar {
+        width: 245px;
+        min-width: 245px;
+        flex-basis: 245px;
+    }
+
+    .employee-portal .employee-main {
+        width: calc(100% - 245px);
+    }
+
+    .employee-portal .employee-content {
+        padding-left: 25px;
+        padding-right: 25px;
+    }
+
+    .employee-portal .employee-topbar {
+        padding-left: 25px;
+        padding-right: 25px;
+    }
+
+    .employee-portal .stats-grid {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+    .employee-portal .details-grid {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+    .employee-portal .attendance-details-grid,
+    .employee-portal .salary-detail-grid {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 900px) {
+
+    .employee-portal .employee-sidebar {
+        width: 220px;
+        min-width: 220px;
+        flex-basis: 220px;
+    }
+
+    .employee-portal .employee-main {
+        width: calc(100% - 220px);
+    }
+
+    .employee-portal .dashboard-columns {
+        grid-template-columns: 1fr;
+    }
+
+    .employee-portal .welcome-section {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .employee-portal .welcome-meta {
+        width: 100%;
+    }
+
+    .employee-portal .welcome-date,
+    .employee-portal .employee-id-badge {
+        flex: 1;
+    }
+
+    .employee-portal .topbar-actions {
+        gap: 10px;
+    }
+
+    .employee-portal .refresh-button {
+        font-size: 0;
+
+        width: 42px;
+
+        padding: 0;
+
+        justify-content: center;
+    }
+}
+
+@media (max-width: 700px) {
+
+    .employee-portal {
+        display: block;
+    }
+
+    .employee-portal .employee-sidebar {
+        width: 100%;
+        min-width: 0;
+        flex: none;
+
+        height: auto;
+        min-height: auto;
+
+        position: relative;
+
+        border-left: 0;
+        border-bottom: 1px solid #e6eaf0;
+    }
+
+    .employee-portal .employee-main {
+        width: 100%;
+    }
+
+    .employee-portal .sidebar-brand {
+        height: 72px;
+    }
+
+    .employee-portal .sidebar-profile,
+    .employee-portal .sidebar-section-label,
+    .employee-portal .sidebar-bottom {
+        display: none;
+    }
+
+    .employee-portal .employee-navigation {
+        padding: 9px 12px 12px;
+
+        display: grid;
+
+        grid-template-columns:
+            repeat(3, 1fr);
+
+        gap: 5px;
+    }
+
+    .employee-portal .nav-item {
+        height: 47px;
+
+        padding: 0 6px;
+
+        justify-content: center;
+
+        gap: 5px;
+
+        font-size: 12px;
+    }
+
+    .employee-portal .employee-icon {
+        width: auto;
+        font-size: 16px;
+    }
+
+    .employee-portal .employee-topbar {
+        height: auto;
+        min-height: 80px;
+
+        position: relative;
+
+        padding: 16px;
+    }
+
+    .employee-portal .topbar-heading h1 {
+        font-size: 21px;
+    }
+
+    .employee-portal .topbar-user {
+        display: none;
+    }
+
+    .employee-portal .employee-content {
+        padding: 22px 15px 35px;
+    }
+
+    .employee-portal .page-intro h2 {
+        font-size: 27px;
+    }
+
+    .employee-portal .page-intro-with-action {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+    .employee-portal .welcome-section {
+        padding: 25px 22px;
+    }
+
+    .employee-portal .welcome-copy h2 {
+        font-size: 25px;
+    }
+
+    .employee-portal .welcome-meta {
+        flex-direction: column;
+    }
+
+    .employee-portal .stats-grid {
+        grid-template-columns:
+            1fr 1fr;
+
+        gap: 10px;
+    }
+
+    .employee-portal .stat-card {
+        min-height: 130px;
+        padding: 17px;
+    }
+
+    .employee-portal .stat-card strong {
+        font-size: 28px;
+    }
+
+    .employee-portal .content-panel {
+        padding: 18px;
+    }
+
+    .employee-portal .attendance-time-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .employee-portal .details-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .employee-portal .attendance-details-grid {
+        grid-template-columns:
+            1fr 1fr;
+    }
+
+    .employee-portal .salary-detail-grid {
+        grid-template-columns:
+            1fr 1fr;
+    }
+
+    .employee-portal .profile-hero {
+        align-items: flex-start;
+
+        flex-wrap: wrap;
+    }
+
+    .employee-portal .profile-number {
+        width: 100%;
+
+        padding: 15px 0 0;
+
+        border-right: 0;
+        border-top: 1px solid #e9edf2;
+    }
+
+    .employee-portal .leave-summary {
+        grid-template-columns: 1fr;
+    }
+
+    .employee-portal .leave-item {
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .employee-portal .leave-main {
+        width: calc(100% - 137px);
+    }
+
+    .employee-portal .leave-actions {
+        width: 100%;
+        text-align: left;
+    }
+
+    .employee-portal .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .employee-portal .form-field.full {
+        grid-column: auto;
+    }
+}
+
+@media (max-width: 460px) {
+
+    .employee-portal .employee-navigation {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+    .employee-portal .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .employee-portal .salary-detail-grid,
+    .employee-portal .attendance-details-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .employee-portal .welcome-copy h2 {
+        font-size: 22px;
+    }
+
+    .employee-portal .welcome-copy p {
+        font-size: 13px;
+    }
+
+    .employee-portal .salary-hero {
+        padding: 23px;
+    }
+
+    .employee-portal .salary-hero strong {
+        font-size: 29px;
+    }
+
+    .employee-portal .salary-symbol {
+        width: 65px;
+        height: 65px;
+
+        font-size: 12px;
+    }
+
+    .employee-portal .leave-date-box {
+        width: 105px;
+        min-width: 105px;
+    }
+
+    .employee-portal .leave-main {
+        width: calc(100% - 122px);
+    }
+}
