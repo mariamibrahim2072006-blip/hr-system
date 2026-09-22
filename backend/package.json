@@ -175,8 +175,6 @@
     "libsodium-wrappers": "^0.8.4",
     "libsql": "^0.5.29",
     "lie": "^3.3.0",
-    "lightningcss": "^1.33.0",
-    "lightningcss-win32-x64-msvc": "^1.33.0",
     "lilconfig": "^2.1.0",
     "lodash.includes": "^4.3.0",
     "lodash.isboolean": "^3.0.3",
