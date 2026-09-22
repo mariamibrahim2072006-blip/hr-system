@@ -11,83 +11,50 @@ require('dotenv').config();
 
 const app = express();
 
+const allowedOrigins = [
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'https://hr-system-frontend-2th5rc9kj-mariam-b9a6.vercel.app'
+];
+
 app.use(cors({
-    origin: '*',
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+    origin: function (origin, callback) {
+        // السماح للطلبات بدون Origin مثل بعض أدوات السيرفر
+        if (!origin) {
+            return callback(null, true);
+        }
+
+        if (allowedOrigins.includes(origin)) {
+            return callback(null, true);
+        }
+
+        return callback(new Error('Not allowed by CORS'));
+    },
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: [
+        'Content-Type',
+        'Authorization',
+        'X-Requested-With'
+    ],
+    credentials: true
 }));
 
-// إضافة دعم صريح لطلبات الـ Preflight (OPTIONS)
 
-app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    if (req.method === 'OPTIONS') {
-        return res.sendStatus(200);
-    }
-    next();
-});
+
+app.use(express.json());
 
 const PORT = process.env.PORT || 5000;
 
 const JWT_SECRET =
     process.env.JWT_SECRET ||
     'hr_system_super_secret_change_this';
-
-/* =========================================================
-   DATABASE
-========================================================= */
-
-const db = mysql.createConnection({
-    host: process.env.DB_HOST || 'localhost',
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || '',
-    database: process.env.DB_NAME || 'hr_system_db',
-    charset: 'utf8mb4'
-});
-
-db.connect((err) => {
-    if (err) {
-        console.error('❌ MySQL connection failed:', err.message);
-        return;
-    }
-
-    console.log('✅ MySQL connected successfully');
-
-    db.query('SET NAMES utf8mb4', (setErr) => {
-        if (setErr) {
-            console.error(
-                '❌ Failed to set UTF8:',
-                setErr.message
-            );
-        } else {
-            console.log('✅ MySQL UTF8MB4 enabled');
-        }
-    });
-});
-
-function query(sql, params = []) {
-    return new Promise((resolve, reject) => {
-        db.query(sql, params, (err, results) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(results);
-            }
-        });
-    });
-}
 /* =========================================================
    FILE UPLOADS
 ========================================================= */
 
-const documentsDir = path.join(
-    __dirname,
-    'uploads',
-    'employee-documents'
-);
-
+const documentsDir = process.env.VERCEL
+    ? path.join('/tmp', 'employee-documents')
+    : path.join(__dirname, 'uploads', 'employee-documents');
 fs.mkdirSync(documentsDir, {
     recursive: true
 });
@@ -486,7 +453,12 @@ async function createAuditLog(
 /* =========================================================
    HEALTH
 ========================================================= */
-
+app.get('/', (req, res) => {
+    res.status(200).json({
+        success: true,
+        message: 'PIONEERS HRMS Backend is running'
+    });
+});
 app.get(
     '/api/health',
     async (req, res) => {

@@ -48,8 +48,8 @@ export default function Login({ onLogin }) {
         try {
             setLoading(true);
 
-            const response = await fetch(
-                `${API_URL}/login`,
+            const response = await fetch(`${API_URL}/api/login`,
+
                 {
                     method: 'POST',
                     headers: {
