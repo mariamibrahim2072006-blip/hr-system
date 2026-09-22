@@ -11,8 +11,6 @@ require('dotenv').config();
 
 const app = express();
 
-const cors = require('cors');
-
 app.use(cors({
     origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -20,7 +18,7 @@ app.use(cors({
 }));
 
 // إضافة دعم صريح لطلبات الـ Preflight (OPTIONS)
-app.options('*', cors());
+
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
@@ -80,7 +78,6 @@ function query(sql, params = []) {
         });
     });
 }
-
 /* =========================================================
    FILE UPLOADS
 ========================================================= */
