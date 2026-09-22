@@ -11,13 +11,16 @@ require('dotenv').config();
 
 const app = express();
 
+const cors = require('cors');
+
 app.use(cors({
     origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true }));
+
+// إضافة دعم صريح لطلبات الـ Preflight (OPTIONS)
+app.options('*', cors());
 
 const PORT = process.env.PORT || 5000;
 
