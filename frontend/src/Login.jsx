@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'https://hr-system-backend-eight.vercel.app/api';
 
 export default function Login({ onLogin }) {
     const [email, setEmail] = useState('');
