@@ -1,5 +1,6 @@
+require('dotenv').config();
 const express = require('express');
-const mysql = require('mysql2');
+const { query, ensureSchema } = require('./db');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -11,43 +12,30 @@ require('dotenv').config();
 
 const app = express();
 
-const allowedOrigins = [
-    'http://localhost:5173',
-    'http://localhost:3000',
-    'https://hr-system-frontend-2th5rc9kj-mariam-b9a6.vercel.app'
-];
-
 app.use(cors({
-    origin: function (origin, callback) {
-        // السماح للطلبات بدون Origin مثل بعض أدوات السيرفر
-        if (!origin) {
-            return callback(null, true);
-        }
-
-        if (allowedOrigins.includes(origin)) {
-            return callback(null, true);
-        }
-
-        return callback(new Error('Not allowed by CORS'));
-    },
+    origin: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: [
-        'Content-Type',
-        'Authorization',
-        'X-Requested-With'
-    ],
-    credentials: true
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
-
-
 
 app.use(express.json());
 
 const PORT = process.env.PORT || 5000;
 
+app.use(async (req, res, next) => {
+    try {
+        await ensureSchema();
+        next();
+    } catch (e) {
+        console.error('DB init error:', e.message);
+        res.status(500).json({ success: false, message: 'Database connection error', error: e.message });
+    }
+});
+
+
 const JWT_SECRET =
     process.env.JWT_SECRET ||
-    'hr_system_super_secret_change_this';
+    require('crypto').createHash('sha256').update('hrms-jwt:' + (process.env.DB_PASSWORD || 'dev')).digest('hex');
 /* =========================================================
    FILE UPLOADS
 ========================================================= */
@@ -57,6 +45,33 @@ const documentsDir = process.env.VERCEL
     : path.join(__dirname, 'uploads', 'employee-documents');
 fs.mkdirSync(documentsDir, {
     recursive: true
+});
+
+
+async function saveFileToDb(file) {
+    const data = fs.readFileSync(file.path);
+    await query(
+        'INSERT INTO document_files (name, mime_type, data) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE data = VALUES(data), mime_type = VALUES(mime_type)',
+        [file.filename, file.mimetype, data]
+    );
+}
+
+app.get('/uploads/employee-documents/:name', async (req, res, next) => {
+    try {
+        const name = path.basename(req.params.name);
+        const local = path.join(documentsDir, name);
+        if (fs.existsSync(local)) {
+            return res.sendFile(local);
+        }
+        const rows = await query('SELECT mime_type, data FROM document_files WHERE name = ? LIMIT 1', [name]);
+        if (rows.length === 0) {
+            return res.status(404).json({ success: false, message: 'الملف غير موجود' });
+        }
+        res.setHeader('Content-Type', rows[0].mime_type || 'application/octet-stream');
+        res.send(rows[0].data);
+    } catch (e) {
+        next(e);
+    }
 });
 
 app.use(
@@ -3515,15 +3530,9 @@ app.post(
             }
 
             const relativePath =
-                path
-                    .relative(
-                        __dirname,
-                        req.file.path
-                    )
-                    .replace(
-                        /\\/g,
-                        '/'
-                    );
+                `uploads/employee-documents/${req.file.filename}`;
+
+            await saveFileToDb(req.file);
 
             const result =
                 await query(
@@ -5111,6 +5120,7 @@ app.use(
    START SERVER
 ========================================================= */
 
+if (!process.env.VERCEL) {
 app.listen(
     PORT,
     () => {
@@ -5149,3 +5159,6 @@ app.listen(
         );
     }
 );
+}
+
+module.exports = app;
