@@ -385,10 +385,24 @@ export default function Dashboard({ user, onLogout }) {
                 @media (max-width: 900px) {
                     .hrms-sidebar { transform: translateX(100%); }
                     .hrms-sidebar.mobile-open { transform: translateX(0); }
-                    .hrms-main { margin-right: 0; width: 100%; }
+                    .hrms-main { margin-right: 0; width: 100%; overflow-x: hidden; }
                     .mobile-menu-button { display: flex; align-items: center; justify-content: center; }
                     .hrms-header { padding: 0 15px; }
                     .hrms-content { padding: 17px 15px 25px; }
+                    .hrms-content div:has(> table) { overflow-x: auto !important; max-width: 100%; }
+                    .hrms-content table { max-width: none; }
+                    .header-user-text { display: none; }
+                    .welcome-text h1 { font-size: 17px; }
+                    .dashboard-welcome { flex-direction: column; align-items: flex-start; gap: 10px; }
+                    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+                    .modules-grid { grid-template-columns: repeat(2, 1fr); }
+                }
+                @media (max-width: 480px) {
+                    .stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+                    .stat-card { padding: 12px; min-height: 88px; }
+                    .stat-value { font-size: 21px; }
+                    .hrms-content { padding: 14px 12px 22px; }
+                    .header-title span { display: none; }
                 }
             `}</style>
 
