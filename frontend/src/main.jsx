@@ -4,7 +4,7 @@ import './index.css'
 import App from './App.jsx'
 
 // Route every request that still points at the local dev server to the live backend.
-const LIVE_API = (import.meta.env.VITE_API_URL || 'https://hr-system-backend-eight.vercel.app').replace(/\/api\/?$|\/$/, '')
+const LIVE_API = (import.meta.env.VITE_API_URL || (window.location.hostname === 'hr-system-frontend-pi.vercel.app' ? 'https://hr-system-backend-eight.vercel.app' : window.location.origin)).replace(/\/api\/?$|\/$/, '')
 const originalFetch = window.fetch.bind(window)
 window.fetch = (input, init) => {
   if (typeof input === 'string' && input.startsWith('http://localhost:5000')) {
