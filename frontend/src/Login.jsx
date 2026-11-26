@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 
 const API_URL = (import.meta.env.VITE_API_URL || (window.location.hostname === 'hr-system-frontend-pi.vercel.app' ? 'https://hr-system-backend-eight.vercel.app' : window.location.origin)).replace(/\/api\/?$|\/$/, '');
 
-export default function Login({ onLogin }) {
+export default function Login({ onLogin, portal = 'employee', onBack }) {
     const [mode, setMode] = useState('login');
     const [fullName, setFullName] = useState('');
     const [email, setEmail] = useState('');
@@ -86,6 +86,10 @@ export default function Login({ onLogin }) {
                 data.user &&
                 data.token
             ) {
+                if (portal === 'admin' && data.user.role === 'employee') {
+                    setError('هذا الحساب حساب موظف. استخدم زر دخول الموظفين من الصفحة الرئيسية.');
+                    return;
+                }
                 // حفظ بيانات تسجيل الدخول الحقيقية
                 // القادمة من قاعدة البيانات
                 localStorage.setItem(
@@ -505,9 +509,10 @@ export default function Login({ onLogin }) {
                     </button>
                 </form>
                 <div style={{ textAlign: 'center', marginTop: '16px' }}>
-                    <button type="button" onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setError(''); }} style={{ border: 'none', background: 'transparent', color: '#0284c7', cursor: 'pointer', fontSize: '13px' }}>
+                    {onBack && <div style={{ marginBottom: '10px' }}><button type="button" onClick={onBack} style={{ border: 'none', background: 'transparent', color: '#64748b', cursor: 'pointer', fontSize: '13px' }}>← الرئيسية / Home</button></div>}
+                    {portal !== 'admin' && <button type="button" onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setError(''); }} style={{ border: 'none', background: 'transparent', color: '#0284c7', cursor: 'pointer', fontSize: '13px' }}>
                         {mode === 'login' ? 'Create a new account' : 'Back to sign in'}
-                    </button>
+                    </button>}
                 </div>
 
                 {/* FOOTER */}
@@ -524,7 +529,7 @@ export default function Login({ onLogin }) {
                         fontSize: '10px'
                     }}
                 >
-                    PIONEERS HRMS
+                    PIONEERS HRMS · {portal === 'admin' ? 'Management' : 'Employee Portal'}
                 </div>
             </div>
         </div>
