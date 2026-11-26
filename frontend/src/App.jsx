@@ -3,8 +3,20 @@ import React, { useState } from 'react';
 import Login from './Login';
 import Dashboard from './Dashboard';
 import EmployeeDashboard from './EmployeeDashboard';
+import Landing from './Landing';
 
 export default function App() {
+  const [portal, setPortal] = useState(null);
+  try {
+    if (localStorage.getItem('hr_v') !== '2') {
+      const u = JSON.parse(localStorage.getItem('hr_user') || 'null');
+      if (u && u.role === 'employee') {
+        localStorage.removeItem('hr_user');
+        localStorage.removeItem('hr_token');
+      }
+      localStorage.setItem('hr_v', '2');
+    }
+  } catch (e) {}
   const [user, setUser] = useState(() => {
     try {
       const savedUser = localStorage.getItem('hr_user');
@@ -40,8 +52,13 @@ export default function App() {
   };
 
   if (!user) {
+    if (!portal) {
+      return <Landing onSelect={setPortal} />;
+    }
     return (
       <Login
+        portal={portal}
+        onBack={() => setPortal(null)}
         onLogin={handleLogin}
       />
     );
