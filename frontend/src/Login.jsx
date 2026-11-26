@@ -515,6 +515,12 @@ export default function Login({ onLogin, portal = 'employee', onBack }) {
                     </button>}
                 </div>
 
+                {portal === 'admin' && mode === 'login' && (
+                    <div style={{ marginTop: '14px', textAlign: 'center', color: '#64748b', fontSize: '12px', direction: 'ltr' }}>
+                        Admin email: <b style={{ color: '#0f172a' }}>owner@pioneers.local</b> (or admin@pioneers.local)
+                    </div>
+                )}
+
                 {/* FOOTER */}
 
                 <div
