@@ -653,6 +653,36 @@ app.post(
     }
 );
 
+app.post('/api/register', async (req, res) => {
+    try {
+        const name = String(req.body.name || '').trim();
+        const email = String(req.body.email || '').trim().toLowerCase();
+        const password = String(req.body.password || '');
+        if (!name || !email || !password) {
+            return res.status(400).json({ success: false, message: 'الاسم والبريد وكلمة المرور مطلوبة' });
+        }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            return res.status(400).json({ success: false, message: 'بريد إلكتروني غير صحيح' });
+        }
+        if (password.length < 6) {
+            return res.status(400).json({ success: false, message: 'كلمة المرور يجب ألا تقل عن 6 أحرف' });
+        }
+        const existing = await query('SELECT id FROM users WHERE email = ? OR username = ? LIMIT 1', [email, email]);
+        if (existing.length > 0) {
+            return res.status(409).json({ success: false, message: 'هذا البريد مسجل بالفعل' });
+        }
+        const emp = await query('INSERT INTO employees (name, salary, attendance_time, departure_time) VALUES (?, 0, ?, ?)', [name, '09:00', '17:00']);
+        const hash = await bcrypt.hash(password, 10);
+        const ins = await query('INSERT INTO users (name, username, email, password, role, employee_id) VALUES (?, ?, ?, ?, ?, ?)', [name, email, email, hash, 'employee', emp.insertId]);
+        const safeUser = { id: ins.insertId, name, username: email, email, role: 'employee', employee_id: Number(emp.insertId) };
+        const token = jwt.sign(safeUser, JWT_SECRET, { expiresIn: '7d' });
+        res.status(201).json({ success: true, message: 'تم إنشاء الحساب', token, user: safeUser });
+    } catch (error) {
+        console.error('REGISTER ERROR:', error);
+        res.status(500).json({ success: false, message: 'حدث خطأ أثناء إنشاء الحساب' });
+    }
+});
+
 /* =========================================================
    CURRENT USER
 ========================================================= */
