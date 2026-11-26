@@ -1,9 +1,11 @@
 
 import React, { useState } from 'react';
 
-const API_URL = (import.meta.env.VITE_API_URL || 'https://hr-system-backend-eight.vercel.app').replace(/\/api\/?$|\/$/, '');
+const API_URL = (import.meta.env.VITE_API_URL || (window.location.hostname === 'hr-system-frontend-pi.vercel.app' ? 'https://hr-system-backend-eight.vercel.app' : window.location.origin)).replace(/\/api\/?$|\/$/, '');
 
 export default function Login({ onLogin }) {
+    const [mode, setMode] = useState('login');
+    const [fullName, setFullName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
@@ -24,6 +26,11 @@ export default function Login({ onLogin }) {
             setError(
                 'من فضلك أدخل البريد الإلكتروني.'
             );
+            return;
+        }
+
+        if (mode === 'signup' && !fullName.trim()) {
+            setError('من فضلك أدخل الاسم.');
             return;
         }
 
@@ -48,7 +55,7 @@ export default function Login({ onLogin }) {
         try {
             setLoading(true);
 
-            const response = await fetch(`${API_URL}/api/login`,
+            const response = await fetch(`${API_URL}${mode === 'signup' ? '/api/register' : '/api/login'}`,
 
                 {
                     method: 'POST',
@@ -58,7 +65,8 @@ export default function Login({ onLogin }) {
                     },
                     body: JSON.stringify({
                         email: cleanEmail,
-                        password
+                        password,
+                        name: fullName.trim()
                     })
                 }
             );
@@ -215,6 +223,13 @@ export default function Login({ onLogin }) {
                     onSubmit={handleLogin}
                     noValidate
                 >
+                    {mode === 'signup' && (
+                        <div style={{ marginBottom: '24px' }}>
+                            <label htmlFor="signup-name" style={{ display: 'block', marginBottom: '8px', color: '#334155', fontSize: '12px', fontWeight: '600', textAlign: 'left' }}>FULL NAME</label>
+                            <input id="signup-name" type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Enter your full name" disabled={loading} style={{ width: '100%', height: '44px', padding: '0 12px', boxSizing: 'border-box', border: '1px solid #cbd5e1', borderRadius: '6px', outline: 'none', color: '#1e293b', fontSize: '13px' }} />
+                        </div>
+                    )}
+
                     {/* EMAIL */}
 
                     <div
@@ -486,9 +501,14 @@ export default function Login({ onLogin }) {
                     >
                         {loading
                             ? 'جاري التحقق...'
-                            : 'Sign in'}
+                            : (mode === 'signup' ? 'Create account' : 'Sign in')}
                     </button>
                 </form>
+                <div style={{ textAlign: 'center', marginTop: '16px' }}>
+                    <button type="button" onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setError(''); }} style={{ border: 'none', background: 'transparent', color: '#0284c7', cursor: 'pointer', fontSize: '13px' }}>
+                        {mode === 'login' ? 'Create a new account' : 'Back to sign in'}
+                    </button>
+                </div>
 
                 {/* FOOTER */}
 
