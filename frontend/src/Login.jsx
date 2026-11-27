@@ -1,31 +1,83 @@
-
 import React, { useState } from 'react';
+import { ShieldCheck, UserRound, Eye, EyeOff, ArrowRight, Building2 } from 'lucide-react';
 
 const API_URL = (import.meta.env.VITE_API_URL || (window.location.hostname === 'hr-system-frontend-pi.vercel.app' ? 'https://hr-system-backend-eight.vercel.app' : window.location.origin)).replace(/\/api\/?$|\/$/, '');
+
+const css = `
+.auth {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 28px 16px;
+    background:
+        radial-gradient(800px 420px at 88% -8%, rgba(59, 130, 246, 0.25), transparent 60%),
+        linear-gradient(160deg, #081a33 0%, #0b2447 60%, #10315e 100%);
+    font-family: var(--font);
+    direction: rtl;
+}
+.auth-card {
+    width: 100%;
+    max-width: 430px;
+    background: #fff;
+    border-radius: 20px;
+    padding: 34px 30px 26px;
+    box-shadow: 0 24px 60px rgba(2, 8, 23, 0.4);
+}
+.auth-head { text-align: center; margin-bottom: 24px; }
+.auth-badge {
+    width: 54px; height: 54px; border-radius: 15px; margin: 0 auto 12px;
+    display: flex; align-items: center; justify-content: center;
+}
+.auth-badge.blue { background: #eff6ff; color: #1d4ed8; }
+.auth-badge.green { background: #ecfdf5; color: #047857; }
+.auth-title { margin: 0; font-size: 20px; font-weight: 900; color: #0f172a; }
+.auth-sub { margin: 6px 0 0; font-size: 12px; color: #64748b; font-weight: 600; line-height: 1.7; }
+.auth-error {
+    background: #fee2e2; color: #991b1b; border: 1px solid #fecaca;
+    border-radius: 10px; padding: 10px 13px; font-size: 12px; font-weight: 700;
+    margin-bottom: 16px; line-height: 1.7;
+}
+.auth-pass-wrap { position: relative; }
+.auth-pass-toggle {
+    position: absolute; inset-inline-end: 8px; top: 50%; transform: translateY(-50%);
+    border: none; background: transparent; color: #94a3b8; cursor: pointer;
+    display: flex; align-items: center; padding: 6px;
+}
+.auth-hint {
+    margin-top: 14px; text-align: center; color: #64748b; font-size: 12px;
+    background: #f8fafc; border: 1px solid #eef2f7; border-radius: 10px; padding: 9px 12px;
+    direction: ltr; font-weight: 600;
+}
+.auth-links { margin-top: 18px; display: flex; flex-direction: column; gap: 8px; align-items: center; }
+.auth-link {
+    border: none; background: transparent; color: #2563eb; cursor: pointer;
+    font-size: 13px; font-weight: 800; font-family: var(--font);
+}
+.auth-link.muted { color: #64748b; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
+.auth-foot { text-align: center; margin-top: 20px; color: #94a3b8; font-size: 11px; font-weight: 600; }
+.auth-brand { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 18px; color: #1e293b; font-weight: 900; font-size: 13px; letter-spacing: 0.6px; }
+`;
 
 export default function Login({ onLogin, portal = 'employee', onBack }) {
     const [mode, setMode] = useState('login');
     const [fullName, setFullName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-
-    const [showPassword, setShowPassword] =
-        useState(false);
-
+    const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
+    const isAdmin = portal === 'admin';
+
     const handleLogin = async (e) => {
         e.preventDefault();
-
         setError('');
 
         const cleanEmail = email.trim();
 
         if (!cleanEmail) {
-            setError(
-                'من فضلك أدخل البريد الإلكتروني.'
-            );
+            setError('من فضلك أدخل البريد الإلكتروني.');
             return;
         }
 
@@ -35,510 +87,196 @@ export default function Login({ onLogin, portal = 'employee', onBack }) {
         }
 
         if (!password) {
-            setError(
-                'من فضلك أدخل كلمة المرور.'
-            );
+            setError('من فضلك أدخل كلمة المرور.');
             return;
         }
 
-        if (
-            !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
-                cleanEmail
-            )
-        ) {
-            setError(
-                'من فضلك أدخل بريدًا إلكترونيًا صحيحًا.'
-            );
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
+            setError('من فضلك أدخل بريدًا إلكترونيًا صحيحًا.');
             return;
         }
 
         try {
             setLoading(true);
 
-            const response = await fetch(`${API_URL}${mode === 'signup' ? '/api/register' : '/api/login'}`,
-
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type':
-                            'application/json'
-                    },
-                    body: JSON.stringify({
-                        email: cleanEmail,
-                        password,
-                        name: fullName.trim()
-                    })
-                }
-            );
+            const response = await fetch(`${API_URL}${mode === 'signup' ? '/api/register' : '/api/login'}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: cleanEmail,
+                    password,
+                    name: fullName.trim()
+                })
+            });
 
             let data = {};
-
             try {
-                data =
-                    await response.json();
+                data = await response.json();
             } catch {
                 data = {};
             }
 
-            if (
-                response.ok &&
-                data.success &&
-                data.user &&
-                data.token
-            ) {
+            if (response.ok && data.success && data.user && data.token) {
                 if (portal === 'admin' && data.user.role === 'employee') {
                     setError('هذا الحساب حساب موظف. استخدم زر دخول الموظفين من الصفحة الرئيسية.');
                     return;
                 }
-                // حفظ بيانات تسجيل الدخول الحقيقية
-                // القادمة من قاعدة البيانات
-                localStorage.setItem(
-                    'hr_token',
-                    data.token
-                );
-
-                localStorage.setItem(
-                    'hr_user',
-                    JSON.stringify(
-                        data.user
-                    )
-                );
-
-                // إرسال بيانات المستخدم
-                // إلى التطبيق الرئيسي
+                localStorage.setItem('hr_token', data.token);
+                localStorage.setItem('hr_user', JSON.stringify(data.user));
                 onLogin(data.user);
-
                 return;
             }
 
             if (response.status === 401) {
-                setError(
-                    data.message ||
-                    'البريد الإلكتروني أو كلمة المرور غير صحيحة.'
-                );
+                setError(data.message || 'البريد الإلكتروني أو كلمة المرور غير صحيحة.');
                 return;
             }
 
             if (response.status === 403) {
-                setError(
-                    data.message ||
-                    'ليس لديك صلاحية للدخول إلى النظام.'
-                );
+                setError(data.message || 'ليس لديك صلاحية للدخول إلى النظام.');
                 return;
             }
 
             if (response.status >= 500) {
-                setError(
-                    'حدث خطأ في الخادم. حاول مرة أخرى.'
-                );
+                setError('حدث خطأ في الخادم. حاول مرة أخرى.');
                 return;
             }
 
-            setError(
-                data.message ||
-                'تعذر تسجيل الدخول. تحقق من البيانات وحاول مرة أخرى.'
-            );
+            setError(data.message || 'تعذر تسجيل الدخول. تحقق من البيانات وحاول مرة أخرى.');
         } catch (err) {
-            console.error(
-                'Login error:',
-                err
-            );
-
-            setError(
-                'تعذر الاتصال بالخادم. تأكد من تشغيل الـ Backend ثم حاول مرة أخرى.'
-            );
+            console.error('Login error:', err);
+            setError('تعذر الاتصال بالخادم. تأكد من تشغيل الـ Backend ثم حاول مرة أخرى.');
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div
-            style={{
-                minHeight: '100vh',
-                width: '100%',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                background: '#f8fafc',
-                padding: '20px',
-                boxSizing: 'border-box',
-                fontFamily:
-                    'Tahoma, Arial, sans-serif',
-                direction: 'ltr'
-            }}
-        >
-            <div
-                style={{
-                    width: '100%',
-                    maxWidth: '410px',
-                    background: '#ffffff',
-                    border:
-                        '1px solid #e2e8f0',
-                    borderRadius: '10px',
-                    padding:
-                        '42px 38px',
-                    boxSizing: 'border-box',
-                    boxShadow:
-                        '0 8px 30px rgba(15, 23, 42, 0.06)'
-                }}
-            >
-                {/* =====================
-                    LOGO / TITLE
-                ====================== */}
+        <div className="auth">
+            <style>{css}</style>
+            <div className="auth-card">
+                <div className="auth-brand">
+                    <Building2 size={17} />
+                    PIONEERS HRMS
+                </div>
 
-                <div
-                    style={{
-                        textAlign: 'center',
-                        marginBottom: '38px'
-                    }}
-                >
-                    <h1
-                        style={{
-                            margin: 0,
-                            color: '#0284c7',
-                            fontSize: '24px',
-                            fontWeight: '700',
-                            letterSpacing:
-                                '0.5px'
-                        }}
-                    >
-                        PIONEERS HRMS
+                <div className="auth-head">
+                    <div className={`auth-badge ${isAdmin ? 'blue' : 'green'}`}>
+                        {isAdmin ? <ShieldCheck size={26} strokeWidth={2.1} /> : <UserRound size={26} strokeWidth={2.1} />}
+                    </div>
+                    <h1 className="auth-title">
+                        {isAdmin ? 'دخول الإدارة' : mode === 'signup' ? 'إنشاء حساب موظف' : 'بوابة الموظفين'}
                     </h1>
-
-                    <p
-                        style={{
-                            margin:
-                                '8px 0 0',
-                            color: '#64748b',
-                            fontSize: '12px'
-                        }}
-                    >
-                        Human Resources
-                        Management System
+                    <p className="auth-sub">
+                        {isAdmin
+                            ? 'Management sign in - حسابات المديرين والموارد البشرية فقط'
+                            : mode === 'signup'
+                                ? 'Employee sign up - أنشئ حسابك لمتابعة الحضور والمرتب والإجازات'
+                                : 'Employee sign in - ادخل بحسابك أو أنشئ حسابًا جديدًا'}
                     </p>
                 </div>
 
-                {/* =====================
-                    FORM
-                ====================== */}
+                {error && <div className="auth-error">{error}</div>}
 
-                <form
-                    onSubmit={handleLogin}
-                    noValidate
-                >
+                <form onSubmit={handleLogin} noValidate>
                     {mode === 'signup' && (
-                        <div style={{ marginBottom: '24px' }}>
-                            <label htmlFor="signup-name" style={{ display: 'block', marginBottom: '8px', color: '#334155', fontSize: '12px', fontWeight: '600', textAlign: 'left' }}>FULL NAME</label>
-                            <input id="signup-name" type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Enter your full name" disabled={loading} style={{ width: '100%', height: '44px', padding: '0 12px', boxSizing: 'border-box', border: '1px solid #cbd5e1', borderRadius: '6px', outline: 'none', color: '#1e293b', fontSize: '13px' }} />
+                        <div className="field" style={{ marginBottom: '14px' }}>
+                            <label className="field-label" htmlFor="signup-name">الاسم الكامل</label>
+                            <input
+                                id="signup-name"
+                                className="input"
+                                type="text"
+                                value={fullName}
+                                onChange={(e) => setFullName(e.target.value)}
+                                placeholder="اكتب اسمك الكامل"
+                                disabled={loading}
+                            />
                         </div>
                     )}
 
-                    {/* EMAIL */}
-
-                    <div
-                        style={{
-                            marginBottom:
-                                '24px'
-                        }}
-                    >
-                        <label
-                            htmlFor="login-email"
-                            style={{
-                                display:
-                                    'block',
-                                marginBottom:
-                                    '8px',
-                                color:
-                                    '#334155',
-                                fontSize:
-                                    '12px',
-                                fontWeight:
-                                    '600',
-                                textAlign:
-                                    'left'
-                            }}
-                        >
-                            EMAIL
-                        </label>
-
+                    <div className="field" style={{ marginBottom: '14px' }}>
+                        <label className="field-label" htmlFor="login-email">البريد الإلكتروني</label>
                         <input
                             id="login-email"
+                            className="input ltr"
                             type="email"
                             value={email}
                             onChange={(e) => {
-                                setEmail(
-                                    e.target
-                                        .value
-                                );
-
-                                if (error) {
-                                    setError(
-                                        ''
-                                    );
-                                }
+                                setEmail(e.target.value);
+                                if (error) setError('');
                             }}
-                            placeholder="Enter your email"
-                            autoComplete="username"
+                            placeholder="name@example.com"
                             disabled={loading}
-                            style={{
-                                width: '100%',
-                                height: '44px',
-                                padding:
-                                    '0 12px',
-                                boxSizing:
-                                    'border-box',
-                                border:
-                                    '1px solid #cbd5e1',
-                                borderRadius:
-                                    '6px',
-                                outline: 'none',
-                                background:
-                                    loading
-                                        ? '#f1f5f9'
-                                        : '#ffffff',
-                                color:
-                                    '#1e293b',
-                                fontSize:
-                                    '13px',
-                                direction:
-                                    'ltr'
-                            }}
+                            autoComplete="email"
                         />
                     </div>
 
-                    {/* PASSWORD */}
-
-                    <div
-                        style={{
-                            marginBottom:
-                                '24px'
-                        }}
-                    >
-                        <label
-                            htmlFor="login-password"
-                            style={{
-                                display:
-                                    'block',
-                                marginBottom:
-                                    '8px',
-                                color:
-                                    '#334155',
-                                fontSize:
-                                    '12px',
-                                fontWeight:
-                                    '600',
-                                textAlign:
-                                    'left'
-                            }}
-                        >
-                            PASSWORD
-                        </label>
-
-                        <div
-                            style={{
-                                position:
-                                    'relative'
-                            }}
-                        >
+                    <div className="field" style={{ marginBottom: '18px' }}>
+                        <label className="field-label" htmlFor="login-password">كلمة المرور</label>
+                        <div className="auth-pass-wrap">
                             <input
                                 id="login-password"
-                                type={
-                                    showPassword
-                                        ? 'text'
-                                        : 'password'
-                                }
-                                value={
-                                    password
-                                }
-                                onChange={(
-                                    e
-                                ) => {
-                                    setPassword(
-                                        e.target
-                                            .value
-                                    );
-
-                                    if (error) {
-                                        setError(
-                                            ''
-                                        );
-                                    }
+                                className="input ltr"
+                                type={showPassword ? 'text' : 'password'}
+                                value={password}
+                                onChange={(e) => {
+                                    setPassword(e.target.value);
+                                    if (error) setError('');
                                 }}
-                                placeholder="Enter your password"
-                                autoComplete="current-password"
-                                disabled={
-                                    loading
-                                }
-                                style={{
-                                    width:
-                                        '100%',
-                                    height:
-                                        '44px',
-                                    padding:
-                                        '0 45px 0 12px',
-                                    boxSizing:
-                                        'border-box',
-                                    border:
-                                        '1px solid #cbd5e1',
-                                    borderRadius:
-                                        '6px',
-                                    outline:
-                                        'none',
-                                    background:
-                                        loading
-                                            ? '#f1f5f9'
-                                            : '#ffffff',
-                                    color:
-                                        '#1e293b',
-                                    fontSize:
-                                        '13px',
-                                    direction:
-                                        'ltr'
-                                }}
+                                placeholder="••••••••"
+                                disabled={loading}
+                                autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
+                                style={{ paddingInlineEnd: '40px' }}
                             />
-
                             <button
                                 type="button"
-                                onClick={() =>
-                                    setShowPassword(
-                                        (prev) =>
-                                            !prev
-                                    )
-                                }
-                                disabled={
-                                    loading
-                                }
-                                aria-label={
-                                    showPassword
-                                        ? 'Hide password'
-                                        : 'Show password'
-                                }
-                                style={{
-                                    position:
-                                        'absolute',
-                                    right:
-                                        '10px',
-                                    top:
-                                        '50%',
-                                    transform:
-                                        'translateY(-50%)',
-                                    border:
-                                        'none',
-                                    background:
-                                        'transparent',
-                                    color:
-                                        '#64748b',
-                                    cursor:
-                                        loading
-                                            ? 'not-allowed'
-                                            : 'pointer',
-                                    fontSize:
-                                        '12px',
-                                    padding:
-                                        '5px'
-                                }}
+                                className="auth-pass-toggle"
+                                onClick={() => setShowPassword(!showPassword)}
+                                aria-label={showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
                             >
-                                {showPassword
-                                    ? 'Hide'
-                                    : 'Show'}
+                                {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
                             </button>
                         </div>
                     </div>
 
-                    {/* ERROR */}
-
-                    {error && (
-                        <div
-                            role="alert"
-                            style={{
-                                marginBottom:
-                                    '20px',
-                                padding:
-                                    '10px 12px',
-                                background:
-                                    '#fef2f2',
-                                border:
-                                    '1px solid #fecaca',
-                                borderRadius:
-                                    '6px',
-                                color:
-                                    '#b91c1c',
-                                fontSize:
-                                    '12px',
-                                lineHeight:
-                                    '1.6',
-                                textAlign:
-                                    'center'
-                            }}
-                        >
-                            {error}
-                        </div>
-                    )}
-
-                    {/* LOGIN BUTTON */}
-
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        style={{
-                            width: '100%',
-                            height: '44px',
-                            background:
-                                loading
-                                    ? '#94a3b8'
-                                    : '#0284c7',
-                            color: '#ffffff',
-                            border: 'none',
-                            borderRadius:
-                                '6px',
-                            fontSize: '13px',
-                            fontWeight: '700',
-                            cursor: loading
-                                ? 'not-allowed'
-                                : 'pointer',
-                            transition:
-                                'background 0.2s ease',
-                            boxShadow:
-                                '0 3px 8px rgba(2, 132, 199, 0.18)'
-                        }}
-                    >
+                    <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
                         {loading
-                            ? 'جاري التحقق...'
-                            : (mode === 'signup' ? 'Create account' : 'Sign in')}
+                            ? 'جاري تسجيل الدخول...'
+                            : mode === 'signup'
+                                ? 'إنشاء الحساب'
+                                : 'تسجيل الدخول'}
                     </button>
                 </form>
-                <div style={{ textAlign: 'center', marginTop: '16px' }}>
-                    {onBack && <div style={{ marginBottom: '10px' }}><button type="button" onClick={onBack} style={{ border: 'none', background: 'transparent', color: '#64748b', cursor: 'pointer', fontSize: '13px' }}>← الرئيسية / Home</button></div>}
-                    {portal !== 'admin' && <button type="button" onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setError(''); }} style={{ border: 'none', background: 'transparent', color: '#0284c7', cursor: 'pointer', fontSize: '13px' }}>
-                        {mode === 'login' ? 'Create a new account' : 'Back to sign in'}
-                    </button>}
-                </div>
 
-                {portal === 'admin' && mode === 'login' && (
-                    <div style={{ marginTop: '14px', textAlign: 'center', color: '#64748b', fontSize: '12px', direction: 'ltr' }}>
+                {isAdmin && mode === 'login' && (
+                    <div className="auth-hint">
                         Admin email: <b style={{ color: '#0f172a' }}>owner@pioneers.local</b> (or admin@pioneers.local)
                     </div>
                 )}
 
-                {/* FOOTER */}
-
-                <div
-                    style={{
-                        marginTop: '28px',
-                        paddingTop: '16px',
-                        borderTop:
-                            '1px solid #f1f5f9',
-                        textAlign:
-                            'center',
-                        color: '#94a3b8',
-                        fontSize: '10px'
-                    }}
-                >
-                    PIONEERS HRMS · {portal === 'admin' ? 'Management' : 'Employee Portal'}
+                <div className="auth-links">
+                    {!isAdmin && (
+                        <button
+                            type="button"
+                            className="auth-link"
+                            onClick={() => {
+                                setMode(mode === 'login' ? 'signup' : 'login');
+                                setError('');
+                            }}
+                        >
+                            {mode === 'login' ? 'ليس لديك حساب؟ إنشاء حساب موظف جديد' : 'لديك حساب بالفعل؟ تسجيل الدخول'}
+                        </button>
+                    )}
+                    {onBack && (
+                        <button type="button" className="auth-link muted" onClick={onBack}>
+                            <ArrowRight size={14} />
+                            العودة للصفحة الرئيسية
+                        </button>
+                    )}
                 </div>
+
+                <p className="auth-foot">PIONEERS HRMS · {isAdmin ? 'Management' : 'Employee Portal'}</p>
             </div>
         </div>
     );
 }
-
