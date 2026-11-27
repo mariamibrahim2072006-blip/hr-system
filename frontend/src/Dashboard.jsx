@@ -12,17 +12,16 @@ import {
     CalendarDays,
     BarChart3,
     LogOut,
-    UserRound,
-    ChevronLeft,
-    Activity,
+    Menu,
+    X,
     Clock3,
     UserCheck,
     CircleDollarSign,
     Database,
     LockKeyhole,
     CheckCircle2,
-    Menu,
-    X,
+    Activity,
+    ChevronLeft,
 } from 'lucide-react';
 
 import AddEmployee from './AddEmployee';
@@ -37,169 +36,103 @@ import LoansAndDeductions from './LoansAndDeductions';
 import Salaries from './Salaries';
 import SettingsPage from './Settings';
 import UsersPage from './Users';
+import { API_URL, authHeaders, extractArray, getToday, Stat, Card, Badge } from './ui';
 
-const API_URL = 'http://localhost:5000';
-
-const ALL_TABS = [
-    'dashboard',
-    'employees',
-    'addEmployee',
-    'attendance',
-    'advancedAttendance',
-    'salaries',
-    'loans',
-    'departments',
-    'groups',
-    'holidays',
-    'analytics',
-    'users',
-    'settings',
+/* Every section of the system: id, labels, description, allowed roles. */
+const SECTIONS = [
+    {
+        group: 'الرئيسية',
+        items: [
+            { id: 'dashboard', label: 'لوحة التحكم', en: 'Dashboard', icon: LayoutDashboard, roles: ['admin', 'hr', 'manager', 'employee'] },
+        ],
+    },
+    {
+        group: 'شؤون الموظفين',
+        items: [
+            { id: 'employees', label: 'سجل الموظفين', en: 'Employees', icon: Users, roles: ['admin', 'hr', 'manager'] },
+            { id: 'addEmployee', label: 'إضافة موظف', en: 'Add employee', icon: UserPlus, roles: ['admin', 'hr'] },
+        ],
+    },
+    {
+        group: 'الوقت والحضور',
+        items: [
+            { id: 'attendance', label: 'الحضور اليومي', en: 'Daily attendance', icon: CalendarCheck, roles: ['admin', 'hr', 'manager', 'employee'] },
+            { id: 'advancedAttendance', label: 'الورديات والإضافي', en: 'Shifts & overtime', icon: Clock3, roles: ['admin', 'hr', 'manager'] },
+            { id: 'holidays', label: 'الإجازات والعطلات', en: 'Leaves & holidays', icon: CalendarDays, roles: ['admin', 'hr', 'manager', 'employee'] },
+        ],
+    },
+    {
+        group: 'الشؤون المالية',
+        items: [
+            { id: 'salaries', label: 'المرتبات', en: 'Payroll', icon: Wallet, roles: ['admin', 'hr', 'manager', 'employee'] },
+            { id: 'loans', label: 'السلف والخصومات', en: 'Loans & deductions', icon: CircleDollarSign, roles: ['admin', 'hr', 'manager'] },
+        ],
+    },
+    {
+        group: 'الهيكل التنظيمي',
+        items: [
+            { id: 'departments', label: 'الأقسام', en: 'Departments', icon: Building2, roles: ['admin', 'hr', 'manager'] },
+            { id: 'groups', label: 'مجموعات الصلاحيات', en: 'Permission groups', icon: Layers3, roles: ['admin', 'hr', 'manager'] },
+        ],
+    },
+    {
+        group: 'النظام',
+        items: [
+            { id: 'analytics', label: 'التقارير والمؤشرات', en: 'Reports & analytics', icon: BarChart3, roles: ['admin', 'hr', 'manager'] },
+            { id: 'users', label: 'المستخدمون', en: 'System users', icon: ShieldCheck, roles: ['admin'] },
+            { id: 'settings', label: 'الإعدادات', en: 'Settings', icon: Settings, roles: ['admin'] },
+        ],
+    },
 ];
 
+const ALL_TABS = SECTIONS.flatMap((s) => s.items.map((i) => i.id));
+
+const PAGE_META = {
+    dashboard: { title: 'لوحة التحكم الرئيسية', desc: 'نظرة عامة على حالة النظام وأهم المؤشرات اليومية' },
+    employees: { title: 'سجل الموظفين', desc: 'بحث وعرض ومتابعة بيانات جميع الموظفين المسجلين' },
+    addEmployee: { title: 'إضافة موظف جديد', desc: 'تسجيل بيانات موظف وربطه بقسم ومواعيد عمل وراتب' },
+    attendance: { title: 'سجل الحضور اليومي', desc: 'متابعة حضور وانصراف الموظفين في يوم محدد وتعديل الحالات' },
+    advancedAttendance: { title: 'الورديات والساعات الإضافية', desc: 'توزيع الورديات الصباحية والمسائية وتسجيل الساعات الإضافية' },
+    salaries: { title: 'المرتبات', desc: 'كشوف الرواتب المحسوبة تلقائيًا مع طباعة قسيمة الراتب' },
+    loans: { title: 'السلف والخصومات', desc: 'تسجيل السلف المالية والجزاءات والمكافآت وساعات الإضافي' },
+    departments: { title: 'الأقسام', desc: 'إدارة أقسام الشركة وتحديد مسؤول كل قسم' },
+    groups: { title: 'مجموعات الصلاحيات', desc: 'إنشاء مجموعات وتحديد صلاحيات الوصول لكل قسم في النظام' },
+    holidays: { title: 'الإجازات والعطلات', desc: 'طلبات الإجازات والموافقة عليها أو رفضها' },
+    analytics: { title: 'التقارير والمؤشرات', desc: 'مؤشرات الأداء الرئيسية وتوزيع الموظفين على الأقسام' },
+    users: { title: 'المستخدمون والصلاحيات', desc: 'حسابات الدخول إلى النظام وأدوار كل مستخدم' },
+    settings: { title: 'إعدادات الشركة', desc: 'بيانات المؤسسة وسياسات العمل والإجازات الأسبوعية' },
+};
+
+const ROLE_NAMES = {
+    admin: 'مدير النظام',
+    hr: 'الموارد البشرية',
+    manager: 'مدير',
+    employee: 'موظف',
+};
+
 export default function Dashboard({ user, onLogout }) {
-    const getAllowedTabs = () => {
-        const role = user?.role
-            ? user.role.toLowerCase().trim()
-            : 'employee';
+    const userRole = user?.role ? user.role.toLowerCase().trim() : 'employee';
 
-        const allMenuItems = [
-            { id: 'dashboard', roles: ['admin', 'hr', 'manager', 'employee'] },
-            { id: 'employees', roles: ['admin', 'hr', 'manager'] },
-            { id: 'addEmployee', roles: ['admin', 'hr'] },
-            { id: 'attendance', roles: ['admin', 'hr', 'manager', 'employee'] },
-            { id: 'advancedAttendance', roles: ['admin', 'hr', 'manager'] },
-            { id: 'salaries', roles: ['admin', 'hr', 'manager', 'employee'] },
-            { id: 'loans', roles: ['admin', 'hr', 'manager'] },
-            { id: 'departments', roles: ['admin', 'hr', 'manager'] },
-            { id: 'groups', roles: ['admin', 'hr', 'manager'] },
-            { id: 'holidays', roles: ['admin', 'hr', 'manager', 'employee'] },
-            { id: 'analytics', roles: ['admin', 'hr', 'manager'] },
-            { id: 'users', roles: ['admin'] },
-            { id: 'settings', roles: ['admin'] },
-        ];
-
-        return allMenuItems
-            .filter((item) => item.roles.includes(role))
+    const getAllowedTabs = () =>
+        SECTIONS.flatMap((s) => s.items)
+            .filter((item) => item.roles.includes(userRole))
             .map((item) => item.id);
-    };
 
     const getInitialTab = () => {
         const hash = window.location.hash.replace('#', '').trim();
-        const allowedTabs = getAllowedTabs();
-
-        if (
-            hash &&
-            ALL_TABS.includes(hash) &&
-            allowedTabs.includes(hash)
-        ) {
-            return hash;
-        }
-
+        const allowed = getAllowedTabs();
+        if (hash && ALL_TABS.includes(hash) && allowed.includes(hash)) return hash;
         return 'dashboard';
     };
 
     const [activeTab, setActiveTab] = useState(getInitialTab);
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
-    const userRole = user?.role
-        ? user.role.toLowerCase().trim()
-        : 'employee';
-
-    const allMenuItems = [
-        {
-            id: 'dashboard',
-            label: 'لوحة التحكم الرئيسية',
-            icon: LayoutDashboard,
-            roles: ['admin', 'hr', 'manager', 'employee'],
-        },
-        {
-            id: 'employees',
-            label: 'الموظفين',
-            icon: Users,
-            roles: ['admin', 'hr', 'manager'],
-        },
-        {
-            id: 'addEmployee',
-            label: 'إضافة موظف',
-            icon: UserPlus,
-            roles: ['admin', 'hr'],
-        },
-        {
-            id: 'attendance',
-            label: 'الحضور والانصراف',
-            icon: CalendarCheck,
-            roles: ['admin', 'hr', 'manager', 'employee'],
-        },
-        {
-            id: 'advancedAttendance',
-            label: 'إدارة الحضور',
-            icon: Clock3,
-            roles: ['admin', 'hr', 'manager'],
-        },
-        {
-            id: 'salaries',
-            label: 'المرتبات',
-            icon: Wallet,
-            roles: ['admin', 'hr', 'manager', 'employee'],
-        },
-        {
-            id: 'loans',
-            label: 'السلف والخصومات',
-            icon: CircleDollarSign,
-            roles: ['admin', 'hr', 'manager'],
-        },
-        {
-            id: 'departments',
-            label: 'الأقسام',
-            icon: Building2,
-            roles: ['admin', 'hr', 'manager'],
-        },
-        {
-            id: 'groups',
-            label: 'المجموعات',
-            icon: Layers3,
-            roles: ['admin', 'hr', 'manager'],
-        },
-        {
-            id: 'holidays',
-            label: 'الإجازات والعطلات',
-            icon: CalendarDays,
-            roles: ['admin', 'hr', 'manager', 'employee'],
-        },
-        {
-            id: 'analytics',
-            label: 'التقارير والتحليلات',
-            icon: BarChart3,
-            roles: ['admin', 'hr', 'manager'],
-        },
-        {
-            id: 'users',
-            label: 'المستخدمين',
-            icon: ShieldCheck,
-            roles: ['admin'],
-        },
-        {
-            id: 'settings',
-            label: 'الإعدادات',
-            icon: Settings,
-            roles: ['admin'],
-        },
-    ];
-
-    const menuItems = allMenuItems.filter((item) =>
-        item.roles.includes(userRole)
-    );
-
     useEffect(() => {
         const handleLocationChange = () => {
             const hash = window.location.hash.replace('#', '').trim();
-            const allowedTabs = getAllowedTabs();
-
-            if (
-                hash &&
-                ALL_TABS.includes(hash) &&
-                allowedTabs.includes(hash)
-            ) {
+            const allowed = getAllowedTabs();
+            if (hash && ALL_TABS.includes(hash) && allowed.includes(hash)) {
                 setActiveTab(hash);
             } else {
                 setActiveTab('dashboard');
@@ -212,7 +145,6 @@ export default function Dashboard({ user, onLogout }) {
 
         window.addEventListener('hashchange', handleLocationChange);
         window.addEventListener('popstate', handleLocationChange);
-
         return () => {
             window.removeEventListener('hashchange', handleLocationChange);
             window.removeEventListener('popstate', handleLocationChange);
@@ -220,12 +152,9 @@ export default function Dashboard({ user, onLogout }) {
     }, [user]);
 
     const handleNavigate = (tab) => {
-        const allowedTabs = getAllowedTabs();
-        if (!allowedTabs.includes(tab)) return;
-
+        if (!getAllowedTabs().includes(tab)) return;
         setActiveTab(tab);
         setSidebarOpen(false);
-
         const newHash = `#${tab}`;
         if (window.location.hash !== newHash) {
             window.history.pushState(null, '', newHash);
@@ -237,29 +166,19 @@ export default function Dashboard({ user, onLogout }) {
         localStorage.removeItem('hr_token');
         localStorage.removeItem('hr_user');
         if (window.location.hash) {
-            window.history.replaceState(
-                null,
-                '',
-                window.location.pathname + window.location.search
-            );
+            window.history.replaceState(null, '', window.location.pathname + window.location.search);
         }
         onLogout();
     };
 
-    const getRoleName = () => {
-        const roles = {
-            admin: 'مدير النظام',
-            hr: 'الموارد البشرية',
-            manager: 'مدير',
-            employee: 'موظف',
-        };
-        return roles[userRole] || 'مستخدم';
-    };
+    const getRoleName = () => ROLE_NAMES[userRole] || 'مستخدم';
+
+    const meta = PAGE_META[activeTab] || PAGE_META.dashboard;
 
     const renderContent = () => {
         switch (activeTab) {
             case 'employees':
-                return <EmployeeProfile user={user} />;
+                return <EmployeeProfile user={user} onNavigate={handleNavigate} />;
             case 'addEmployee':
                 return <AddEmployee user={user} />;
             case 'attendance':
@@ -296,256 +215,127 @@ export default function Dashboard({ user, onLogout }) {
     };
 
     return (
-        <div className="hrms-app">
-            <style>{`
-                * { box-sizing: border-box; }
-                .hrms-app { min-height: 100vh; background: #eef2f7; color: #172033; font-family: Arial, "Segoe UI", Tahoma, sans-serif; direction: rtl; }
-                .hrms-layout { min-height: 100vh; display: flex; }
-                .hrms-sidebar { width: 255px; min-width: 255px; background: #17263d; color: #fff; display: flex; flex-direction: column; position: fixed; right: 0; top: 0; bottom: 0; z-index: 1000; box-shadow: -4px 0 20px rgba(15, 23, 42, 0.14); transition: transform 0.25s ease; }
-                .sidebar-brand { height: 68px; padding: 0 18px; display: flex; align-items: center; gap: 11px; border-bottom: 1px solid rgba(255,255,255,0.08); }
-                .brand-icon { width: 38px; height: 38px; border-radius: 9px; background: #1677d2; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(22,119,210,0.3); }
-                .brand-text { display: flex; flex-direction: column; gap: 2px; }
-                .brand-title { font-size: 15px; font-weight: 800; letter-spacing: 0.2px; }
-                .brand-subtitle { font-size: 9px; color: #aebed3; font-weight: 600; }
-                .sidebar-menu { padding: 15px 10px; overflow-y: auto; flex: 1; }
-                .sidebar-section-title { color: #71839b; font-size: 10px; font-weight: 800; margin: 3px 11px 8px; letter-spacing: 0.3px; }
-                .sidebar-item { width: 100%; border: none; background: transparent; color: #c6d2e1; min-height: 42px; padding: 0 12px; border-radius: 8px; display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 12px; font-weight: 700; text-align: right; margin-bottom: 3px; transition: all 0.18s ease; }
-                .sidebar-item:hover { background: #223653; color: #fff; }
-                .sidebar-item.active { background: #1677d2; color: #fff; box-shadow: 0 4px 12px rgba(22,119,210,0.23); }
-                .sidebar-footer { padding: 11px; border-top: 1px solid rgba(255,255,255,0.08); }
-                .sidebar-user { background: #1e304b; border-radius: 9px; padding: 10px; margin-bottom: 7px; display: flex; align-items: center; gap: 9px; }
-                .sidebar-user-avatar { width: 33px; height: 33px; border-radius: 8px; background: #1677d2; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-                .sidebar-user-info { min-width: 0; flex: 1; }
-                .sidebar-user-name { font-size: 11px; font-weight: 800; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-                .sidebar-user-role { font-size: 9px; color: #9eb0c6; margin-top: 2px; font-weight: 600; }
-                .logout-button { width: 100%; height: 38px; border: none; border-radius: 7px; background: #b42318; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 7px; font-size: 11px; font-weight: 800; transition: background 0.18s ease; }
-                .logout-button:hover { background: #991b1b; }
-                .hrms-main { margin-right: 255px; width: calc(100% - 255px); min-height: 100vh; }
-                .hrms-header { height: 60px; background: #fff; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; box-shadow: 0 2px 10px rgba(15,23,42,0.06); position: sticky; top: 0; z-index: 900; }
-                .header-title { display: flex; align-items: center; gap: 9px; }
-                .header-title-icon { width: 32px; height: 32px; border-radius: 8px; background: #e7f1fb; color: #1267b1; display: flex; align-items: center; justify-content: center; }
-                .header-title h2 { margin: 0; font-size: 15px; font-weight: 800; color: #18253a; }
-                .header-title span { display: block; margin-top: 2px; color: #475569; font-size: 9px; font-weight: 600; }
-                .header-user { display: flex; align-items: center; gap: 8px; }
-                .header-user-text { text-align: right; }
-                .header-user-name { font-size: 11px; font-weight: 800; color: #172033; }
-                .header-user-role { font-size: 9px; color: #475569; margin-top: 1px; font-weight: 600; }
-                .header-avatar { width: 34px; height: 34px; border-radius: 8px; background: #1677d2; color: #fff; display: flex; align-items: center; justify-content: center; }
-                .mobile-menu-button { display: none; width: 36px; height: 36px; border: none; background: #edf3f9; color: #172033; border-radius: 7px; cursor: pointer; }
-                .hrms-content { padding: 21px 24px 30px; max-width: 1650px; margin: 0 auto; }
-                .dashboard-welcome { background: #fff; border-radius: 11px; padding: 17px 20px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; gap: 15px; box-shadow: 0 4px 15px rgba(15,23,42,0.055); border-right: 4px solid #1677d2; }
-                .welcome-text h1 { margin: 0; font-size: 20px; color: #142238; font-weight: 900; }
-                .welcome-text p { margin: 5px 0 0; color: #475569; font-size: 11px; font-weight: 600; }
-                .system-status { display: flex; align-items: center; gap: 7px; background: #eaf8f0; color: #087443; padding: 8px 11px; border-radius: 7px; font-size: 10px; font-weight: 800; white-space: nowrap; }
-                .system-status.offline { background: #fceaea; color: #b42318; }
-                .status-dot { width: 7px; height: 7px; background: #12a150; border-radius: 50%; }
-                .system-status.offline .status-dot { background: #b42318; }
-                .stats-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 13px; margin-bottom: 16px; }
-                .stat-card { background: #fff; border-radius: 10px; padding: 15px 16px; box-shadow: 0 4px 15px rgba(15,23,42,0.055); display: flex; align-items: center; justify-content: space-between; min-height: 100px; position: relative; overflow: hidden; }
-                .stat-card::after { content: ""; position: absolute; left: 0; bottom: 0; width: 45px; height: 3px; border-radius: 0 4px 0 0; }
-                .stat-card.blue::after { background: #1677d2; }
-                .stat-card.green::after { background: #0b9b59; }
-                .stat-card.orange::after { background: #e88a00; }
-                .stat-card.purple::after { background: #7048c8; }
-                .stat-info { min-width: 0; }
-                .stat-label { font-size: 10px; color: #475569; font-weight: 800; margin-bottom: 7px; }
-                .stat-value { font-size: 25px; line-height: 1; font-weight: 900; color: #162337; }
-                .stat-description { margin-top: 6px; font-size: 8px; color: #64748b; font-weight: 600; }
-                .stat-icon { width: 43px; height: 43px; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-                .stat-icon.blue { background: #e5f1fc; color: #1269b6; }
-                .stat-icon.green { background: #e3f7ed; color: #087d47; }
-                .stat-icon.orange { background: #fff1dc; color: #c66b00; }
-                .stat-icon.purple { background: #eee8fb; color: #6941bd; }
-                .dashboard-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-bottom: 16px; }
-                .dashboard-card { background: #fff; border-radius: 11px; padding: 17px; box-shadow: 0 4px 15px rgba(15,23,42,0.055); margin-bottom: 16px; }
-                .card-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 13px; }
-                .card-heading-main { display: flex; align-items: center; gap: 8px; }
-                .card-heading-icon { width: 31px; height: 31px; border-radius: 7px; background: #e7f1fb; color: #1269b6; display: flex; align-items: center; justify-content: center; }
-                .card-heading h3 { margin: 0; font-size: 13px; font-weight: 900; color: #172238; }
-                .card-heading p { margin: 2px 0 0; color: #475569; font-size: 8px; font-weight: 600; }
-                .system-list { display: flex; flex-direction: column; gap: 8px; }
-                .system-row { display: flex; align-items: center; justify-content: space-between; padding: 9px 10px; background: #f6f8fb; border-radius: 7px; }
-                .system-row-left { display: flex; align-items: center; gap: 8px; }
-                .system-row-icon { width: 29px; height: 29px; border-radius: 7px; background: #e8f1f9; color: #24699f; display: flex; align-items: center; justify-content: center; }
-                .system-row-title { font-size: 9px; font-weight: 900; color: #27364a; }
-                .system-row-subtitle { margin-top: 2px; font-size: 7px; color: #64748b; font-weight: 600; }
-                .status-badge { font-size: 8px; font-weight: 900; padding: 4px 7px; border-radius: 5px; background: #dff6e9; color: #087443; }
-                .status-badge.offline { background: #fce1df; color: #b42318; }
-                .modules-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
-                .module-card { background: #f7f9fc; border-radius: 9px; padding: 12px; cursor: pointer; transition: all 0.18s ease; position: relative; }
-                .module-card:hover { background: #edf4fb; transform: translateY(-1px); }
-                .module-icon { width: 36px; height: 36px; background: #fff; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #1677d2; box-shadow: 0 2px 7px rgba(15,23,42,0.06); margin-bottom: 9px; }
-                .module-card h4 { margin: 0; font-size: 10px; font-weight: 900; color: #172238; }
-                .module-card p { margin: 4px 0 0; font-size: 8px; line-height: 1.45; color: #475569; font-weight: 600; padding-left: 8px; }
-                .module-arrow { position: absolute; top: 12px; left: 12px; color: #9ba7b7; }
-                @media (max-width: 1200px) {
-                    .stats-grid { grid-template-columns: repeat(2, 1fr); }
-                    .modules-grid { grid-template-columns: repeat(2, 1fr); }
-                }
-                @media (max-width: 900px) {
-                    .hrms-sidebar { transform: translateX(100%); }
-                    .hrms-sidebar.mobile-open { transform: translateX(0); }
-                    .hrms-main { margin-right: 0; width: 100%; overflow-x: hidden; }
-                    .mobile-menu-button { display: flex; align-items: center; justify-content: center; }
-                    .hrms-header { padding: 0 15px; }
-                    .hrms-content { padding: 17px 15px 25px; }
-                    .hrms-content div:has(> table) { overflow-x: auto !important; max-width: 100%; }
-                    .hrms-content table { max-width: none; }
-                    .header-user-text { display: none; }
-                    .welcome-text h1 { font-size: 17px; }
-                    .dashboard-welcome { flex-direction: column; align-items: flex-start; gap: 10px; }
-                    .stats-grid { grid-template-columns: repeat(2, 1fr); }
-                    .modules-grid { grid-template-columns: repeat(2, 1fr); }
-                }
-                @media (max-width: 480px) {
-                    .stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
-                    .stat-card { padding: 12px; min-height: 88px; }
-                    .stat-value { font-size: 21px; }
-                    .hrms-content { padding: 14px 12px 22px; }
-                    .header-title span { display: none; }
-                }
-            `}</style>
+        <div className="shell">
+            <button
+                type="button"
+                aria-label="إغلاق القائمة"
+                className={`veil ${sidebarOpen ? 'show' : ''}`}
+                onClick={() => setSidebarOpen(false)}
+            />
 
-            <div className="hrms-layout">
-                <aside className={`hrms-sidebar ${sidebarOpen ? 'mobile-open' : ''}`}>
-                    <div className="sidebar-brand">
-                        <div className="brand-icon">
-                            <ShieldCheck size={21} strokeWidth={2.5} />
+            <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
+                <div className="side-brand">
+                    <div className="side-brand-mark">
+                        <Building2 size={21} strokeWidth={2.3} />
+                    </div>
+                    <div>
+                        <div className="side-brand-name">PIONEERS HRMS</div>
+                        <div className="side-brand-sub">نظام إدارة الموارد البشرية</div>
+                    </div>
+                    <button
+                        type="button"
+                        className="icon-btn"
+                        onClick={() => setSidebarOpen(false)}
+                        style={{ marginInlineStart: 'auto', display: sidebarOpen ? 'inline-flex' : 'none', background: 'transparent', border: 'none', color: '#fff' }}
+                        aria-label="إغلاق"
+                    >
+                        <X size={18} />
+                    </button>
+                </div>
+
+                <nav className="side-nav">
+                    {SECTIONS.map((section) => {
+                        const items = section.items.filter((item) => item.roles.includes(userRole));
+                        if (items.length === 0) return null;
+                        return (
+                            <div className="side-group" key={section.group}>
+                                <div className="side-group-label">{section.group}</div>
+                                {items.map((item) => {
+                                    const Icon = item.icon;
+                                    return (
+                                        <button
+                                            key={item.id}
+                                            type="button"
+                                            className={`side-link ${activeTab === item.id ? 'active' : ''}`}
+                                            onClick={() => handleNavigate(item.id)}
+                                        >
+                                            <span className="side-link-icon">
+                                                <Icon size={17} strokeWidth={2.2} />
+                                            </span>
+                                            {item.label}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        );
+                    })}
+                </nav>
+
+                <div className="side-foot">
+                    <div className="side-user">
+                        <div className="avatar">{(user?.name || user?.username || 'U').trim().charAt(0)}</div>
+                        <div style={{ minWidth: 0, flex: 1 }}>
+                            <div className="side-user-name">{user?.name || user?.username || 'مستخدم'}</div>
+                            <div className="side-user-role">{getRoleName()}</div>
                         </div>
-                        <div className="brand-text">
-                            <div className="brand-title">PIONEERS HRMS</div>
-                            <div className="brand-subtitle">Human Resources Management</div>
-                        </div>
-                        <button
-                            className="mobile-menu-button"
-                            onClick={() => setSidebarOpen(false)}
-                            style={{ marginRight: 'auto', display: sidebarOpen ? 'flex' : 'none', background: 'transparent', color: '#fff' }}
-                        >
-                            <X size={18} />
+                    </div>
+                    <button type="button" className="btn btn-danger btn-block btn-sm" onClick={handleLogout}>
+                        <LogOut size={14} />
+                        تسجيل الخروج
+                    </button>
+                </div>
+            </aside>
+
+            <main className="main">
+                <header className="topbar">
+                    <div className="topbar-title">
+                        <button type="button" className="icon-btn burger" onClick={() => setSidebarOpen(true)} aria-label="فتح القائمة">
+                            <Menu size={18} />
                         </button>
+                        <div>
+                            <h1>{meta.title}</h1>
+                            <p>{meta.desc}</p>
+                        </div>
                     </div>
 
-                    <div className="sidebar-menu">
-                        <div className="sidebar-section-title">MAIN MENU</div>
-                        {menuItems.map((item) => {
-                            const Icon = item.icon;
-                            return (
-                                <button
-                                    key={item.id}
-                                    className={`sidebar-item ${activeTab === item.id ? 'active' : ''}`}
-                                    onClick={() => handleNavigate(item.id)}
-                                >
-                                    <Icon size={18} strokeWidth={2.2} />
-                                    <span>{item.label}</span>
-                                </button>
-                            );
-                        })}
+                    <div className="topbar-user">
+                        <div className="topbar-user-text">
+                            <div className="topbar-user-name">{user?.name || user?.username || 'مستخدم'}</div>
+                            <div className="topbar-user-role">{getRoleName()}</div>
+                        </div>
+                        <div className="avatar" style={{ width: 34, height: 34, fontSize: 14 }}>
+                            {(user?.name || user?.username || 'U').trim().charAt(0)}
+                        </div>
                     </div>
+                </header>
 
-                    <div className="sidebar-footer">
-                        <div className="sidebar-user">
-                            <div className="sidebar-user-avatar">
-                                <UserRound size={16} />
-                            </div>
-                            <div className="sidebar-user-info">
-                                <div className="sidebar-user-name">
-                                    {user?.name || user?.username || 'User'}
-                                </div>
-                                <div className="sidebar-user-role">{getRoleName()}</div>
-                            </div>
-                        </div>
-                        <button className="logout-button" onClick={handleLogout}>
-                            <LogOut size={15} />
-                            تسجيل الخروج
-                        </button>
-                    </div>
-                </aside>
-
-                <main className="hrms-main">
-                    <header className="hrms-header">
-                        <div className="header-title">
-                            <button className="mobile-menu-button" onClick={() => setSidebarOpen(true)}>
-                                <Menu size={19} />
-                            </button>
-                            <div className="header-title-icon">
-                                {activeTab === 'dashboard' ? <LayoutDashboard size={17} /> : <Activity size={17} />}
-                            </div>
-                            <div>
-                                <h2>
-                                    {menuItems.find((item) => item.id === activeTab)?.label || 'لوحة التحكم الرئيسية'}
-                                </h2>
-                                <span>PIONEERS Human Resources Management System</span>
-                            </div>
-                        </div>
-
-                        <div className="header-user">
-                            <div className="header-user-text">
-                                <div className="header-user-name">
-                                    {user?.name || user?.username || 'User'}
-                                </div>
-                                <div className="header-user-role">{getRoleName()}</div>
-                            </div>
-                            <div className="header-avatar">
-                                <UserRound size={17} />
-                            </div>
-                        </div>
-                    </header>
-
-                    <section className="hrms-content">
-                        {renderContent()}
-                    </section>
-                </main>
-            </div>
+                <section className="content">{renderContent()}</section>
+            </main>
         </div>
     );
 }
 
-function DashboardHome({ user, getRoleName, onNavigate }) {
+function DashboardHome({ user, userRole, getRoleName, onNavigate }) {
     const [dashboardStats, setDashboardStats] = useState({
         employees: 0,
         presentToday: 0,
         pendingLeaves: 0,
         payrollRecords: 0,
     });
-
-    const [systemStatus, setSystemStatus] = useState({
-        loading: true,
-        online: false,
-    });
-
+    const [systemStatus, setSystemStatus] = useState({ loading: true, online: false });
     const [dataLoading, setDataLoading] = useState(true);
-
-    const extractArray = (data, possibleKeys = []) => {
-        if (Array.isArray(data)) return data;
-        for (const key of possibleKeys) {
-            if (Array.isArray(data?.[key])) return data[key];
-        }
-        if (Array.isArray(data?.data)) return data.data;
-        return [];
-    };
-
-    const getTodayDate = () => {
-        const now = new Date();
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, '0');
-        const day = String(now.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
-    };
 
     const normalizeDate = (value) => {
         if (!value) return '';
         const stringValue = String(value);
-        if (stringValue.length >= 10) return stringValue.substring(0, 10);
-        return stringValue;
+        return stringValue.length >= 10 ? stringValue.substring(0, 10) : stringValue;
     };
 
     useEffect(() => {
         let cancelled = false;
         const checkSystemHealth = async () => {
             try {
-                const token = localStorage.getItem('hr_token');
-                const headers = token ? { Authorization: `Bearer ${token}` } : {};
-                const response = await fetch(`${API_URL}/api/health`, { headers });
+                const response = await fetch(`${API_URL}/api/health`, { headers: authHeaders() });
                 if (!response.ok) throw new Error(`Health check failed: ${response.status}`);
                 if (!cancelled) setSystemStatus({ loading: false, online: true });
             } catch (error) {
@@ -561,25 +351,23 @@ function DashboardHome({ user, getRoleName, onNavigate }) {
         const loadDashboardStats = async () => {
             try {
                 setDataLoading(true);
-                const token = localStorage.getItem('hr_token');
-                if (!token) return;
-                const headers = { Authorization: `Bearer ${token}` };
+                if (!localStorage.getItem('hr_token')) return;
 
                 const [empRes, attRes, leaveRes, salRes] = await Promise.allSettled([
-                    fetch(`${API_URL}/api/employees`, { headers }),
-                    fetch(`${API_URL}/api/attendance`, { headers }),
-                    fetch(`${API_URL}/api/leaves`, { headers }),
-                    fetch(`${API_URL}/api/salaries`, { headers }),
+                    fetch(`${API_URL}/api/employees`, { headers: authHeaders() }),
+                    fetch(`${API_URL}/api/attendance`, { headers: authHeaders() }),
+                    fetch(`${API_URL}/api/leaves`, { headers: authHeaders() }),
+                    fetch(`${API_URL}/api/salaries`, { headers: authHeaders() }),
                 ]);
 
                 if (cancelled) return;
 
-                let employees = empRes.status === 'fulfilled' && empRes.value.ok ? extractArray(await empRes.value.json(), ['employees']) : [];
-                let attendance = attRes.status === 'fulfilled' && attRes.value.ok ? extractArray(await attRes.value.json(), ['attendance', 'records']) : [];
-                let leaves = leaveRes.status === 'fulfilled' && leaveRes.value.ok ? extractArray(await leaveRes.value.json(), ['leaves', 'records']) : [];
-                let salaries = salRes.status === 'fulfilled' && salRes.value.ok ? extractArray(await salRes.value.json(), ['salaries', 'payroll', 'records']) : [];
+                const employees = empRes.status === 'fulfilled' && empRes.value.ok ? extractArray(await empRes.value.json(), ['employees']) : [];
+                const attendance = attRes.status === 'fulfilled' && attRes.value.ok ? extractArray(await attRes.value.json(), ['attendance', 'records']) : [];
+                const leaves = leaveRes.status === 'fulfilled' && leaveRes.value.ok ? extractArray(await leaveRes.value.json(), ['leaves', 'records']) : [];
+                const salaries = salRes.status === 'fulfilled' && salRes.value.ok ? extractArray(await salRes.value.json(), ['salaries', 'payroll', 'records']) : [];
 
-                const today = getTodayDate();
+                const today = getToday();
                 const presentToday = attendance.filter((record) => {
                     const recordDate = normalizeDate(record?.date || record?.attendance_date || record?.work_date);
                     const status = String(record?.status || '').toLowerCase().trim();
@@ -611,179 +399,119 @@ function DashboardHome({ user, getRoleName, onNavigate }) {
         return () => { cancelled = true; };
     }, []);
 
-    const currentRole = user?.role?.toLowerCase()?.trim() || 'employee';
-
     const modules = [
-        { id: 'employees', title: 'إدارة الموظفين', description: 'بيانات الموظفين والملفات الوظيفية', icon: Users, roles: ['admin', 'hr', 'manager'] },
-        { id: 'attendance', title: 'الحضور والانصراف', description: 'تسجيل ومتابعة أوقات الحضور والانصراف', icon: CalendarCheck, roles: ['admin', 'hr', 'manager', 'employee'] },
-        { id: 'salaries', title: 'إدارة المرتبات', description: 'متابعة الرواتب والمستحقات', icon: Wallet, roles: ['admin', 'hr', 'manager', 'employee'] },
-        { id: 'departments', title: 'الأقسام', description: 'تنظيم وإدارة أقسام المؤسسة', icon: Building2, roles: ['admin', 'hr', 'manager'] },
-        { id: 'holidays', title: 'الإجازات والعطلات', description: 'إدارة الإجازات الرسمية والسنوية', icon: CalendarDays, roles: ['admin', 'hr', 'manager', 'employee'] },
-        { id: 'analytics', title: 'التقارير والتحليلات', description: 'عرض البيانات والمؤشرات الإدارية', icon: BarChart3, roles: ['admin', 'hr', 'manager'] },
-        { id: 'users', title: 'المستخدمين والصلاحيات', description: 'إدارة الحسابات وأدوار المستخدمين', icon: ShieldCheck, roles: ['admin'] },
-        { id: 'settings', title: 'إعدادات النظام', description: 'التحكم في إعدادات النظام العامة', icon: Settings, roles: ['admin'] },
+        { id: 'employees', title: 'سجل الموظفين', description: 'بيانات الموظفين وملفاتهم الوظيفية', icon: Users, roles: ['admin', 'hr', 'manager'] },
+        { id: 'addEmployee', title: 'إضافة موظف', description: 'تسجيل موظف جديد في النظام', icon: UserPlus, roles: ['admin', 'hr'] },
+        { id: 'attendance', title: 'الحضور اليومي', description: 'تسجيل ومتابعة الحضور والانصراف', icon: CalendarCheck, roles: ['admin', 'hr', 'manager', 'employee'] },
+        { id: 'advancedAttendance', title: 'الورديات والإضافي', description: 'إدارة الورديات والساعات الإضافية', icon: Clock3, roles: ['admin', 'hr', 'manager'] },
+        { id: 'holidays', title: 'الإجازات والعطلات', description: 'طلبات الإجازات والموافقات', icon: CalendarDays, roles: ['admin', 'hr', 'manager', 'employee'] },
+        { id: 'salaries', title: 'المرتبات', description: 'كشوف الرواتب والمستحقات', icon: Wallet, roles: ['admin', 'hr', 'manager', 'employee'] },
+        { id: 'loans', title: 'السلف والخصومات', description: 'السلف والجزاءات والمكافآت', icon: CircleDollarSign, roles: ['admin', 'hr', 'manager'] },
+        { id: 'departments', title: 'الأقسام', description: 'تنظيم أقسام المؤسسة', icon: Building2, roles: ['admin', 'hr', 'manager'] },
+        { id: 'groups', title: 'مجموعات الصلاحيات', description: 'صلاحيات الوصول لكل مجموعة', icon: Layers3, roles: ['admin', 'hr', 'manager'] },
+        { id: 'analytics', title: 'التقارير والمؤشرات', description: 'البيانات والمؤشرات الإدارية', icon: BarChart3, roles: ['admin', 'hr', 'manager'] },
+        { id: 'users', title: 'المستخدمون', description: 'الحسابات وأدوار المستخدمين', icon: ShieldCheck, roles: ['admin'] },
+        { id: 'settings', title: 'الإعدادات', description: 'إعدادات الشركة العامة', icon: Settings, roles: ['admin'] },
     ];
 
-    const visibleModules = modules.filter((module) => module.roles.includes(currentRole));
+    const visibleModules = modules.filter((module) => module.roles.includes(userRole));
 
     return (
         <div>
-            <div className="dashboard-welcome">
-                <div className="welcome-text">
-                    <h1>مرحبًا، {user?.name || user?.username || 'مستخدم'}</h1>
-                    <p>أنت الآن تستخدم نظام PIONEERS لإدارة الموارد البشرية بصلاحية {getRoleName()}.</p>
+            <div className="card" style={{ padding: '18px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 14, flexWrap: 'wrap', borderInlineStart: '4px solid var(--primary)' }}>
+                <div>
+                    <h2 style={{ margin: 0, fontSize: 19, fontWeight: 900, color: 'var(--ink)' }}>
+                        مرحبًا، {user?.name || user?.username || 'مستخدم'}
+                    </h2>
+                    <p style={{ margin: '5px 0 0', color: 'var(--muted)', fontSize: 12, fontWeight: 600 }}>
+                        أنت تستخدم نظام PIONEERS لإدارة الموارد البشرية بصلاحية {getRoleName()}. اختر قسمًا من القائمة الجانبية أو من الاختصارات بالأسفل.
+                    </p>
                 </div>
-                <div className={`system-status ${!systemStatus.loading && !systemStatus.online ? 'offline' : ''}`}>
-                    <span className="status-dot"></span>
-                    {systemStatus.loading ? 'جاري التحقق...' : systemStatus.online ? 'النظام يعمل بشكل طبيعي' : 'النظام غير متصل'}
-                </div>
+                {systemStatus.loading ? (
+                    <Badge tone="gray">جاري التحقق من النظام...</Badge>
+                ) : systemStatus.online ? (
+                    <Badge tone="green"><span className="dot green" /> النظام يعمل بشكل طبيعي</Badge>
+                ) : (
+                    <Badge tone="red"><span className="dot red" /> الخادم غير متصل</Badge>
+                )}
             </div>
 
-            <div className="stats-grid">
-                <div className="stat-card blue">
-                    <div className="stat-info">
-                        <div className="stat-label">إجمالي الموظفين</div>
-                        <div className="stat-value">{dataLoading ? '...' : dashboardStats.employees}</div>
-                        <div className="stat-description">Employees registered</div>
-                    </div>
-                    <div className="stat-icon blue">
-                        <Users size={22} strokeWidth={2.3} />
-                    </div>
-                </div>
-
-                <div className="stat-card green">
-                    <div className="stat-info">
-                        <div className="stat-label">الحاضرون اليوم</div>
-                        <div className="stat-value">{dataLoading ? '...' : dashboardStats.presentToday}</div>
-                        <div className="stat-description">Present today</div>
-                    </div>
-                    <div className="stat-icon green">
-                        <UserCheck size={22} strokeWidth={2.3} />
-                    </div>
-                </div>
-
-                <div className="stat-card orange">
-                    <div className="stat-info">
-                        <div className="stat-label">طلبات الإجازات</div>
-                        <div className="stat-value">{dataLoading ? '...' : dashboardStats.pendingLeaves}</div>
-                        <div className="stat-description">Pending requests</div>
-                    </div>
-                    <div className="stat-icon orange">
-                        <CalendarDays size={22} strokeWidth={2.3} />
-                    </div>
-                </div>
-
-                <div className="stat-card purple">
-                    <div className="stat-info">
-                        <div className="stat-label">سجلات المرتبات</div>
-                        <div className="stat-value">{dataLoading ? '...' : dashboardStats.payrollRecords}</div>
-                        <div className="stat-description">Payroll records</div>
-                    </div>
-                    <div className="stat-icon purple">
-                        <CircleDollarSign size={22} strokeWidth={2.3} />
-                    </div>
-                </div>
+            <div className="stats">
+                <Stat icon={Users} color="blue" label="إجمالي الموظفين" value={dataLoading ? '...' : dashboardStats.employees} sub="Employees registered" />
+                <Stat icon={UserCheck} color="green" label="الحاضرون اليوم" value={dataLoading ? '...' : dashboardStats.presentToday} sub="Present today" />
+                <Stat icon={CalendarDays} color="amber" label="طلبات إجازات معلقة" value={dataLoading ? '...' : dashboardStats.pendingLeaves} sub="Pending requests" />
+                <Stat icon={CircleDollarSign} color="purple" label="سجلات المرتبات" value={dataLoading ? '...' : dashboardStats.payrollRecords} sub="Payroll records" />
             </div>
 
-            <div className="dashboard-card">
-                <div className="card-heading">
-                    <div className="card-heading-main">
-                        <div className="card-heading-icon">
-                            <Activity size={17} />
-                        </div>
-                        <div>
-                            <h3>حالة النظام</h3>
-                            <p>System status</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="system-list">
-                    <div className="system-row">
-                        <div className="system-row-left">
-                            <div className="system-row-icon"><Database size={15} /></div>
-                            <div>
-                                <div className="system-row-title">قاعدة البيانات</div>
-                                <div className="system-row-subtitle">MySQL Database</div>
-                            </div>
-                        </div>
-                        <span className={`status-badge ${!systemStatus.loading && !systemStatus.online ? 'offline' : ''}`}>
-                            {systemStatus.loading ? 'جاري التحقق' : systemStatus.online ? 'متصل' : 'غير متصل'}
-                        </span>
-                    </div>
-
-                    <div className="system-row">
-                        <div className="system-row-left">
-                            <div className="system-row-icon"><ShieldCheck size={15} /></div>
-                            <div>
-                                <div className="system-row-title">المصادقة</div>
-                                <div className="system-row-subtitle">JWT Authentication</div>
-                            </div>
-                        </div>
-                        <span className="status-badge">{localStorage.getItem('hr_token') ? 'آمن' : 'غير متاح'}</span>
-                    </div>
-
-                    <div className="system-row">
-                        <div className="system-row-left">
-                            <div className="system-row-icon"><LockKeyhole size={15} /></div>
-                            <div>
-                                <div className="system-row-title">الصلاحيات</div>
-                                <div className="system-row-subtitle">Role Based Access</div>
-                            </div>
-                        </div>
-                        <span className="status-badge">فعال</span>
-                    </div>
-
-                    <div className="system-row">
-                        <div className="system-row-left">
-                            <div className="system-row-icon"><CheckCircle2 size={15} /></div>
-                            <div>
-                                <div className="system-row-title">API Server</div>
-                                <div className="system-row-subtitle">Backend Service</div>
-                            </div>
-                        </div>
-                        <span className={`status-badge ${!systemStatus.loading && !systemStatus.online ? 'offline' : ''}`}>
-                            {systemStatus.loading ? 'جاري التحقق' : systemStatus.online ? 'يعمل' : 'متوقف'}
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <div className="dashboard-card">
-                <div className="card-heading">
-                    <div className="card-heading-main">
-                        <div className="card-heading-icon">
-                            <Layers3 size={17} />
-                        </div>
-                        <div>
-                            <h3>وحدات النظام</h3>
-                            <p>Modules available for your account</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="modules-grid">
+            <Card icon={Layers3} title="أقسام النظام" desc="كل ما تحتاجه مقسم ومرتب - اضغط على أي قسم للانتقال إليه مباشرة">
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))', gap: 10 }}>
                     {visibleModules.map((module) => {
                         const Icon = module.icon;
                         return (
-                            <div
+                            <button
+                                type="button"
                                 key={module.id}
-                                className="module-card"
                                 onClick={() => onNavigate(module.id)}
+                                style={{
+                                    background: '#f8fafc',
+                                    border: '1px solid var(--line-soft)',
+                                    borderRadius: 12,
+                                    padding: '13px 14px',
+                                    cursor: 'pointer',
+                                    textAlign: 'start',
+                                    fontFamily: 'var(--font)',
+                                    position: 'relative',
+                                    transition: 'background 0.15s ease, transform 0.1s ease',
+                                }}
+                                onMouseOver={(e) => { e.currentTarget.style.background = '#eff6ff'; }}
+                                onMouseOut={(e) => { e.currentTarget.style.background = '#f8fafc'; }}
                             >
-                                <div className="module-icon">
-                                    <Icon size={19} strokeWidth={2.3} />
-                                </div>
-                                <h4>{module.title}</h4>
-                                <p>{module.description}</p>
-                                <div className="module-arrow">
-                                    <ChevronLeft size={14} />
-                                </div>
+                                <span className="card-icon" style={{ marginBottom: 9 }}>
+                                    <Icon size={18} strokeWidth={2.3} />
+                                </span>
+                                <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--ink)', marginTop: 8 }}>{module.title}</div>
+                                <div style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 600, marginTop: 3, lineHeight: 1.6 }}>{module.description}</div>
+                                <span style={{ position: 'absolute', top: 12, insetInlineEnd: 12, color: '#9ba7b7' }}>
+                                    <ChevronLeft size={15} />
+                                </span>
+                            </button>
+                        );
+                    })}
+                </div>
+            </Card>
+
+            <Card icon={Activity} title="حالة النظام" desc="System status">
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))', gap: 10 }}>
+                    {[
+                        { icon: Database, title: 'قاعدة البيانات', sub: 'MySQL Database', ok: systemStatus.online, loading: systemStatus.loading },
+                        { icon: LockKeyhole, title: 'المصادقة', sub: 'JWT Authentication', ok: !!localStorage.getItem('hr_token'), loading: false },
+                        { icon: ShieldCheck, title: 'الصلاحيات', sub: 'Role Based Access', ok: true, loading: false },
+                        { icon: CheckCircle2, title: 'خادم الواجهات', sub: 'API Server', ok: systemStatus.online, loading: systemStatus.loading },
+                    ].map((row) => {
+                        const Icon = row.icon;
+                        return (
+                            <div key={row.title} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, background: '#f8fafc', border: '1px solid var(--line-soft)', borderRadius: 10, padding: '10px 12px' }}>
+                                <span className="flex" style={{ gap: 9 }}>
+                                    <span className="card-icon" style={{ width: 30, height: 30 }}>
+                                        <Icon size={15} />
+                                    </span>
+                                    <span>
+                                        <span style={{ display: 'block', fontSize: 12, fontWeight: 800, color: 'var(--ink-2)' }}>{row.title}</span>
+                                        <span style={{ display: 'block', fontSize: 10, color: 'var(--faint)', fontWeight: 600 }}>{row.sub}</span>
+                                    </span>
+                                </span>
+                                {row.loading ? (
+                                    <Badge tone="gray">جاري التحقق</Badge>
+                                ) : row.ok ? (
+                                    <Badge tone="green">يعمل</Badge>
+                                ) : (
+                                    <Badge tone="red">متوقف</Badge>
+                                )}
                             </div>
                         );
                     })}
                 </div>
-            </div>
+            </Card>
         </div>
     );
 }
