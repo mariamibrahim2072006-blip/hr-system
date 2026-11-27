@@ -1,7 +1,23 @@
 import React, { useState, useEffect } from 'react';
+import { Layers3, Save, Trash2 } from 'lucide-react';
+import { PageHeader, Card, Field, Empty, Alert, Badge } from './ui';
+
+const PERMISSION_ROWS = [
+    { key: 'employees', label: 'إدارة الموظفين' },
+    { key: 'settings', label: 'الإعدادات العامة والسياسات' },
+    { key: 'attendance', label: 'إدارة الحضور والورديات' },
+    { key: 'salaries', label: 'تقرير الرواتب والماليات' },
+];
+
+const emptyPermissions = () => ({
+    employees: { view: false, edit: false, delete: false, add: false, all: false },
+    settings: { view: false, edit: false, delete: false, add: false, all: false },
+    attendance: { view: false, edit: false, delete: false, add: false, all: false },
+    salaries: { view: false, edit: false, delete: false, add: false, all: false },
+});
 
 export default function Groups() {
-    // جلب المجموعات المحفوظة مسبقاً من ذاكرة المتصفح لضمان عدم ضياعها
+    // Groups persist in browser storage so they are never lost.
     const [groupsList, setGroupsList] = useState(() => {
         const saved = localStorage.getItem('hr_user_groups');
         if (saved) {
@@ -9,7 +25,7 @@ export default function Groups() {
         }
         return [
             { id: 1, name: 'مدير النظام (Admin)', permissionsCount: 'صلاحيات كاملة' },
-            { id: 2, name: 'موظف شؤون إدارية', permissionsCount: 'عرض وتعديل' }
+            { id: 2, name: 'موظف شؤون إدارية', permissionsCount: 'عرض وتعديل' },
         ];
     });
 
@@ -18,13 +34,13 @@ export default function Groups() {
     }, [groupsList]);
 
     const [groupName, setGroupName] = useState('');
-    const [permissions, setPermissions] = useState({
-        employees: { view: false, edit: false, delete: false, add: false, all: false },
-        settings: { view: false, edit: false, delete: false, add: false, all: false },
-        attendance: { view: false, edit: false, delete: false, add: false, all: false },
-        salaries: { view: false, edit: false, delete: false, add: false, all: false }
-    });
+    const [permissions, setPermissions] = useState(emptyPermissions);
     const [message, setMessage] = useState({ text: '', type: '' });
+
+    const showMessage = (text, type = 'success') => {
+        setMessage({ text, type });
+        setTimeout(() => setMessage({ text: '', type: '' }), 3000);
+    };
 
     const handleCheckboxChange = (row, field) => {
         const updated = { ...permissions };
@@ -32,7 +48,7 @@ export default function Groups() {
             const val = !updated[row].all;
             updated[row] = { view: val, edit: val, delete: val, add: val, all: val };
         } else {
-            updated[row][field] = !updated[row][field];
+            updated[row] = { ...updated[row], [field]: !updated[row][field] };
             updated[row].all = updated[row].view && updated[row].edit && updated[row].delete && updated[row].add;
         }
         setPermissions(updated);
@@ -40,175 +56,162 @@ export default function Groups() {
 
     const handleSelectAllGlobal = () => {
         const updated = {};
-        const keys = ['employees', 'settings', 'attendance', 'salaries'];
-        keys.forEach(k => {
-            updated[k] = { view: true, edit: true, delete: true, add: true, all: true };
+        PERMISSION_ROWS.forEach(({ key }) => {
+            updated[key] = { view: true, edit: true, delete: true, add: true, all: true };
         });
         setPermissions(updated);
-        setMessage({ text: 'تم تحديد كافة الصلاحيات بنجاح', type: 'success' });
-        setTimeout(() => setMessage({ text: '', type: '' }), 3000);
+        showMessage('تم تحديد كافة الصلاحيات بنجاح');
     };
 
     const handlePrivateCustom = () => {
-        const updated = {};
-        const keys = ['employees', 'settings', 'attendance', 'salaries'];
-        keys.forEach(k => {
-            updated[k] = { view: false, edit: false, delete: false, add: false, all: false };
-        });
-        setPermissions(updated);
-        setMessage({ text: 'تم إعادة ضبط الصلاحيات للتخصيص اليدوي', type: 'success' });
-        setTimeout(() => setMessage({ text: '', type: '' }), 3000);
+        setPermissions(emptyPermissions());
+        showMessage('تم إعادة ضبط الصلاحيات للتخصيص اليدوي');
     };
 
     const handleSave = (e) => {
         e.preventDefault();
         if (!groupName.trim()) {
-            setMessage({ text: 'من فضلك أدخل اسم المجموعة', type: 'error' });
+            showMessage('من فضلك أدخل اسم المجموعة', 'error');
             return;
         }
 
         const newGroup = {
             id: Date.now(),
             name: groupName,
-            permissionsCount: 'صلاحيات مخصصة'
+            permissionsCount: 'صلاحيات مخصصة',
         };
 
         setGroupsList([newGroup, ...groupsList]);
-        setMessage({ text: 'تم إضافة وحفظ مجموعة الصلاحيات بنجاح في النظام', type: 'success' });
+        showMessage('تم إضافة وحفظ مجموعة الصلاحيات بنجاح في النظام');
         setGroupName('');
-        handlePrivateCustom();
-        setTimeout(() => setMessage({ text: '', type: '' }), 3000);
+        setPermissions(emptyPermissions());
     };
 
     const handleDeleteGroup = (id) => {
         if (!window.confirm('هل أنت متأكد من حذف هذه المجموعة؟')) return;
-        setGroupsList(groupsList.filter(g => g.id !== id));
-        setMessage({ text: 'تم حذف المجموعة بنجاح', type: 'success' });
-        setTimeout(() => setMessage({ text: '', type: '' }), 3000);
+        setGroupsList(groupsList.filter((g) => g.id !== id));
+        showMessage('تم حذف المجموعة بنجاح');
     };
 
     return (
-        <div style={{ padding: '24px', fontFamily: 'Tahoma, Arial, sans-serif', direction: 'rtl', background: '#f8fafc', minHeight: '100vh', boxSizing: 'border-box' }}>
+        <div>
+            <PageHeader
+                icon={Layers3}
+                title="مجموعات المستخدمين والصلاحيات"
+                desc="إنشاء مسميات وظيفية وتحديد ما يمكن لكل مجموعة رؤيته أو تعديله في النظام"
+            />
 
-            {/* العنوان التوضيحي */}
-            <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '16px 24px', marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
-                <div>
-                    <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 'bold', color: '#1e293b' }}>مجموعات المستخدمين والصلاحيات</h2>
-                    <p style={{ margin: '4px 0 0', fontSize: '12px', color: '#64748b' }}>إنشاء مسميات وظيفية وتحديد صلاحيات الوصول بدقة لكل قسم في النظام</p>
-                </div>
-                {message.text && (
-                    <div style={{ padding: '8px 16px', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold', background: message.type === 'success' ? '#dcfce7' : '#fee2e2', color: message.type === 'success' ? '#166534' : '#991b1b' }}>
-                        {message.text}
+            {message.text && <Alert type={message.type}>{message.text}</Alert>}
+
+            <Card icon={Layers3} title="إضافة مجموعة جديدة" desc="سمّ المجموعة ثم حدد صلاحياتها على كل قسم من أقسام النظام">
+                <form onSubmit={handleSave}>
+                    <div className="toolbar mb">
+                        <button type="button" className="btn btn-ghost btn-sm" onClick={handlePrivateCustom}>
+                            إلغاء كل التحديدات
+                        </button>
+                        <button type="button" className="btn btn-soft btn-sm" onClick={handleSelectAllGlobal}>
+                            منح كل الصلاحيات
+                        </button>
                     </div>
-                )}
-            </div>
 
-            {/* نموذج إضافة مجموعة جديدة */}
-            <form onSubmit={handleSave} style={{ background: '#ffffff', padding: '24px', border: '1px solid #e2e8f0', borderRadius: '10px', marginBottom: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
-                <h4 style={{ margin: '0 0 16px 0', fontSize: '15px', color: '#0284c7', borderBottom: '2px solid #f0f9ff', paddingBottom: '10px', fontWeight: 'bold' }}>إضافة مجموعة جديدة وتحديد الصلاحيات</h4>
+                    <div className="form-grid mb">
+                        <Field label="اسم المجموعة" required hint="مثال: محاسب أول، مشرف إداري...">
+                            <input
+                                className="input"
+                                type="text"
+                                placeholder="أدخل اسم المجموعة"
+                                value={groupName}
+                                onChange={(e) => setGroupName(e.target.value)}
+                            />
+                        </Field>
+                    </div>
 
-                {/* أزرار التحكم العلوية */}
-                <div style={{ display: 'flex', justifyContent: 'flex-start', gap: '12px', marginBottom: '20px', flexWrap: 'wrap' }}>
-                    <button type="button" onClick={handlePrivateCustom} style={{ background: '#f1f5f9', color: '#334155', border: '1px solid #cbd5e1', padding: '8px 20px', borderRadius: '6px', fontWeight: '600', cursor: 'pointer', fontSize: '12px' }}>Private custom (إلغاء التحديد)</button>
-                    <button type="button" onClick={handleSelectAllGlobal} style={{ background: '#0284c7', color: '#fff', border: 'none', padding: '8px 20px', borderRadius: '6px', fontWeight: '600', cursor: 'pointer', fontSize: '12px' }}>منح كل الصلاحيات</button>
-                </div>
-
-                {/* خانة اسم المجموعة وزر الحفظ */}
-                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px', gap: '15px', flexWrap: 'wrap' }}>
-                    <input
-                        type="text"
-                        placeholder="أدخل اسم المجموعة (مثال: محاسب أول، مشرف إداري...)"
-                        value={groupName}
-                        onChange={(e) => setGroupName(e.target.value)}
-                        style={{ padding: '10px 14px', width: '320px', textAlign: 'right', border: '1px solid #cbd5e1', borderRadius: '6px', outline: 'none', fontSize: '13px', background: '#f8fafc', boxSizing: 'border-box' }}
-                    />
-                    <button type="submit" style={{ background: '#16a34a', color: '#fff', border: 'none', padding: '10px 28px', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>حفظ المجموعة (SAVE)</button>
-                </div>
-
-                {/* جدول الصلاحيات */}
-                <div style={{ width: '100%', overflowX: 'auto' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'right', fontSize: '13px' }}>
-                        <thead>
-                            <tr style={{ background: '#f1f5f9', color: '#475569' }}>
-                                <th style={{ padding: '12px 16px', borderBottom: '2px solid #e2e8f0', width: '200px' }}>أقسام النظام (الصفحة)</th>
-                                <th style={{ padding: '12px 16px', borderBottom: '2px solid #e2e8f0', textAlign: 'center', width: '90px' }}>عرض</th>
-                                <th style={{ padding: '12px 16px', borderBottom: '2px solid #e2e8f0', textAlign: 'center', width: '90px' }}>تعديل</th>
-                                <th style={{ padding: '12px 16px', borderBottom: '2px solid #e2e8f0', textAlign: 'center', width: '90px' }}>حذف</th>
-                                <th style={{ padding: '12px 16px', borderBottom: '2px solid #e2e8f0', textAlign: 'center', width: '90px' }}>إضافة</th>
-                                <th style={{ padding: '12px 16px', borderBottom: '2px solid #e2e8f0', textAlign: 'center', width: '80px' }}>الكل</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {[
-                                { key: 'employees', label: 'إدارة الموظفين' },
-                                { key: 'settings', label: 'الإعدادات العامة والسياسات' },
-                                { key: 'attendance', label: 'إدارة الحضور والورديات' },
-                                { key: 'salaries', label: 'تقرير الرواتب والماليات' }
-                            ].map((row, idx) => (
-                                <tr key={row.key} style={{ background: idx % 2 === 0 ? '#ffffff' : '#fafafa', borderBottom: '1px solid #f1f5f9' }}>
-                                    <td style={{ padding: '12px 16px', fontWeight: '600', color: '#1e293b' }}>{row.label}</td>
-                                    <td style={{ padding: '12px 16px', textAlign: 'center' }}>
-                                        <input type="checkbox" checked={permissions[row.key].view} onChange={() => handleCheckboxChange(row.key, 'view')} style={{ width: '16px', height: '16px', cursor: 'pointer' }} />
-                                    </td>
-                                    <td style={{ padding: '12px 16px', textAlign: 'center' }}>
-                                        <input type="checkbox" checked={permissions[row.key].edit} onChange={() => handleCheckboxChange(row.key, 'edit')} style={{ width: '16px', height: '16px', cursor: 'pointer' }} />
-                                    </td>
-                                    <td style={{ padding: '12px 16px', textAlign: 'center' }}>
-                                        <input type="checkbox" checked={permissions[row.key].delete} onChange={() => handleCheckboxChange(row.key, 'delete')} style={{ width: '16px', height: '16px', cursor: 'pointer' }} />
-                                    </td>
-                                    <td style={{ padding: '12px 16px', textAlign: 'center' }}>
-                                        <input type="checkbox" checked={permissions[row.key].add} onChange={() => handleCheckboxChange(row.key, 'add')} style={{ width: '16px', height: '16px', cursor: 'pointer' }} />
-                                    </td>
-                                    <td style={{ padding: '12px 16px', textAlign: 'center' }}>
-                                        <input type="checkbox" checked={permissions[row.key].all} onChange={() => handleCheckboxChange(row.key, 'all')} style={{ width: '16px', height: '16px', cursor: 'pointer' }} />
-                                    </td>
+                    <div className="tbl-wrap">
+                        <table className="tbl">
+                            <thead>
+                                <tr>
+                                    <th>أقسام النظام</th>
+                                    <th className="c">عرض</th>
+                                    <th className="c">تعديل</th>
+                                    <th className="c">حذف</th>
+                                    <th className="c">إضافة</th>
+                                    <th className="c">الكل</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </form>
+                            </thead>
+                            <tbody>
+                                {PERMISSION_ROWS.map((row) => (
+                                    <tr key={row.key}>
+                                        <td className="cell-main">{row.label}</td>
+                                        {['view', 'edit', 'delete', 'add', 'all'].map((field) => (
+                                            <td className="c" key={field}>
+                                                <input
+                                                    type="checkbox"
+                                                    checked={permissions[row.key][field]}
+                                                    onChange={() => handleCheckboxChange(row.key, field)}
+                                                    style={{ width: 17, height: 17, cursor: 'pointer', accentColor: '#2563eb' }}
+                                                />
+                                            </td>
+                                        ))}
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
 
-            {/* جدول عرض المجموعات النشطة حالياً في النظام */}
-            <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
-                <h4 style={{ margin: '0 0 16px 0', fontSize: '15px', color: '#1e293b', fontWeight: 'bold', textAlign: 'right' }}>المجموعات النشطة المسجلة في النظام</h4>
+                    <div className="mt">
+                        <button type="submit" className="btn btn-success">
+                            <Save size={15} />
+                            حفظ المجموعة
+                        </button>
+                    </div>
+                </form>
+            </Card>
 
-                <div style={{ width: '100%', overflowX: 'auto' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'right', fontSize: '13px' }}>
-                        <thead>
-                            <tr style={{ background: '#f1f5f9', color: '#475569' }}>
-                                <th style={{ padding: '12px 16px', borderBottom: '2px solid #e2e8f0', textAlign: 'center', width: '80px' }}>ID</th>
-                                <th style={{ padding: '12px 16px', borderBottom: '2px solid #e2e8f0' }}>اسم مجموعة المستخدمين</th>
-                                <th style={{ padding: '12px 16px', borderBottom: '2px solid #e2e8f0' }}>نوع الصلاحيات</th>
-                                <th style={{ padding: '12px 16px', borderBottom: '2px solid #e2e8f0', textAlign: 'center', width: '120px' }}>العمليات</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {groupsList.length > 0 ? (
-                                groupsList.map((grp, idx) => (
-                                    <tr key={grp.id || idx} style={{ background: idx % 2 === 0 ? '#ffffff' : '#fafafa', borderBottom: '1px solid #f1f5f9' }}>
-                                        <td style={{ padding: '12px 16px', textAlign: 'center', color: '#64748b' }}>{grp.id}</td>
-                                        <td style={{ padding: '12px 16px', fontWeight: '600', color: '#1e293b' }}>{grp.name}</td>
-                                        <td style={{ padding: '12px 16px', color: '#0284c7', fontWeight: '500' }}>{grp.permissionsCount}</td>
-                                        <td style={{ padding: '12px 16px', textAlign: 'center' }}>
+            <Card
+                icon={Layers3}
+                title="المجموعات المسجلة"
+                desc="المجموعات النشطة حاليًا في النظام"
+                actions={<span className="pill-count">{groupsList.length} مجموعة</span>}
+                flush
+            >
+                {groupsList.length === 0 ? (
+                    <Empty
+                        icon={Layers3}
+                        title="لا توجد مجموعات"
+                        text="أنشئ أول مجموعة صلاحيات من النموذج بالأعلى لتنظيم وصول المستخدمين إلى أقسام النظام."
+                    />
+                ) : (
+                    <div className="tbl-wrap">
+                        <table className="tbl">
+                            <thead>
+                                <tr>
+                                    <th>اسم المجموعة</th>
+                                    <th>نوع الصلاحيات</th>
+                                    <th className="c" style={{ width: 120 }}>العمليات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {groupsList.map((grp) => (
+                                    <tr key={grp.id}>
+                                        <td className="cell-main">{grp.name}</td>
+                                        <td><Badge tone="blue">{grp.permissionsCount}</Badge></td>
+                                        <td className="c">
                                             <button
+                                                type="button"
+                                                className="btn btn-danger btn-sm"
                                                 onClick={() => handleDeleteGroup(grp.id)}
-                                                style={{ background: '#fee2e2', color: '#991b1b', border: '1px solid #fecaca', padding: '5px 14px', cursor: 'pointer', borderRadius: '4px', fontSize: '12px', fontWeight: '600' }}
                                             >
+                                                <Trash2 size={13} />
                                                 حذف
                                             </button>
                                         </td>
                                     </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td colSpan="4" style={{ padding: '30px', textAlign: 'center', color: '#94a3b8' }}>لا توجد مجموعات مسجلة حالياً</td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+            </Card>
         </div>
     );
 }
