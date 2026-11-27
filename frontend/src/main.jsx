@@ -1,6 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import './index.css'
+import './ui.css'
 import App from './App.jsx'
 
 // Route every request that still points at the local dev server to the live backend.
