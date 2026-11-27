@@ -1,28 +1,25 @@
 import React, { useEffect, useState } from 'react';
-
-const API_URL = 'http://localhost:5000';
+import { Users, Search, Trash2, UserPlus } from 'lucide-react';
+import { PageHeader, Card, Empty, Alert, Loading, API_URL, extractArray } from './ui';
 
 const departmentsList = [
     { id: 1, name: 'قسم تطوير البرمجيات (Software Development)' },
     { id: 2, name: 'قسم الموارد البشرية (HR)' },
-    { id: 3, name: 'قسم التسويق والمبيعات' }
+    { id: 3, name: 'قسم التسويق والمبيعات' },
 ];
 
 const getDepartmentName = (departmentId) => {
     if (!departmentId) return 'غير محدد';
-    const dept = departmentsList.find(
-        (item) => Number(item.id) === Number(departmentId)
-    );
-    return dept ? dept.name.split(' ')[0] + ' ' + (dept.name.split(' ')[1] || '') : 'غير محدد';
+    const dept = departmentsList.find((item) => Number(item.id) === Number(departmentId));
+    return dept ? dept.name : 'غير محدد';
 };
 
-export default function EmployeeProfile({ onEditEmployee }) {
+export default function EmployeeProfile({ onNavigate }) {
     const [employees, setEmployees] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [message, setMessage] = useState({ text: '', type: '' });
 
-    // Search and Filter States
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedDept, setSelectedDept] = useState('');
 
@@ -34,29 +31,16 @@ export default function EmployeeProfile({ onEditEmployee }) {
             setError('');
 
             const response = await fetch(`${API_URL}/api/employees`, {
-                method: 'GET',
-                headers: {
-                    Authorization: `Bearer ${getToken()}`,
-                },
+                headers: { Authorization: `Bearer ${getToken()}` },
             });
 
             const data = await response.json();
 
             if (!response.ok) {
-                throw new Error(
-                    data.message || data.error || 'حدث خطأ أثناء جلب الموظفين'
-                );
+                throw new Error(data.message || data.error || 'حدث خطأ أثناء جلب الموظفين');
             }
 
-            if (Array.isArray(data)) {
-                setEmployees(data);
-            } else if (Array.isArray(data.employees)) {
-                setEmployees(data.employees);
-            } else if (Array.isArray(data.data)) {
-                setEmployees(data.data);
-            } else {
-                setEmployees([]);
-            }
+            setEmployees(extractArray(data, ['employees']));
         } catch (err) {
             console.error('FETCH EMPLOYEES ERROR:', err);
             setError(err.message || 'تعذر الاتصال بالسيرفر');
@@ -70,30 +54,24 @@ export default function EmployeeProfile({ onEditEmployee }) {
     }, []);
 
     const handleDelete = async (id) => {
-        const confirmed = window.confirm('هل أنت متأكد من حذف هذا الموظف؟');
-        if (!confirmed) return;
+        if (!window.confirm('هل أنت متأكد من حذف هذا الموظف؟')) return;
 
         try {
             setError('');
             const response = await fetch(`${API_URL}/api/employees/delete/${id}`, {
                 method: 'DELETE',
-                headers: {
-                    Authorization: `Bearer ${getToken()}`,
-                },
+                headers: { Authorization: `Bearer ${getToken()}` },
             });
 
             let data = {};
-            try {
-                data = await response.json();
-            } catch {
-                data = {};
-            }
+            try { data = await response.json(); } catch { data = {}; }
 
             if (!response.ok) {
                 throw new Error(data.message || data.error || 'حدث خطأ أثناء حذف الموظف');
             }
 
             setMessage({ text: 'تم حذف الموظف بنجاح', type: 'success' });
+            setTimeout(() => setMessage({ text: '', type: '' }), 3500);
             await fetchEmployees();
         } catch (err) {
             console.error('DELETE EMPLOYEE ERROR:', err);
@@ -108,292 +86,118 @@ export default function EmployeeProfile({ onEditEmployee }) {
         return value;
     };
 
-    // Filter employees based on Search term and Department
     const filteredEmployees = employees.filter((emp) => {
         const matchesSearch =
             (emp.name && emp.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
             (emp.phone && emp.phone.includes(searchTerm));
-
-        const matchesDept = selectedDept
-            ? Number(emp.department_id) === Number(selectedDept)
-            : true;
-
+        const matchesDept = selectedDept ? Number(emp.department_id) === Number(selectedDept) : true;
         return matchesSearch && matchesDept;
     });
 
-    const inputStyle = {
-        padding: '10px 14px',
-        textAlign: 'right',
-        border: '1px solid #cbd5e1',
-        borderRadius: '7px',
-        outline: 'none',
-        fontSize: '13px',
-        background: '#fff',
-        boxSizing: 'border-box'
-    };
-
     return (
-        <div
-            style={{
-                padding: '24px',
-                direction: 'rtl',
-                fontFamily: 'Tahoma, Arial, sans-serif',
-                background: '#f8fafc',
-                minHeight: '100vh',
-                boxSizing: 'border-box'
-            }}
-        >
-            {/* PAGE HEADER */}
-            <div
-                style={{
-                    background: '#ffffff',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '10px',
-                    padding: '16px 24px',
-                    marginBottom: '24px',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    gap: '20px',
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
-                }}
+        <div>
+            <PageHeader
+                icon={Users}
+                title="سجل الموظفين"
+                desc="كل الموظفين المسجلين في النظام مع بيانات التواصل والقسم والراتب ومواعيد العمل"
             >
-                <div>
-                    <h2
-                        style={{
-                            margin: 0,
-                            fontSize: '18px',
-                            fontWeight: 'bold',
-                            color: '#1e293b'
-                        }}
-                    >
-                        إدارة الموظفين
-                    </h2>
-                    <p
-                        style={{
-                            margin: '4px 0 0',
-                            fontSize: '12px',
-                            color: '#64748b'
-                        }}
-                    >
-                        عرض ومتابعة بيانات جميع الموظفين المسجلين في النظام
-                    </p>
-                </div>
-
-                {message.text && (
-                    <div
-                        style={{
-                            padding: '8px 16px',
-                            borderRadius: '6px',
-                            fontSize: '12px',
-                            fontWeight: 'bold',
-                            background: message.type === 'success' ? '#dcfce7' : '#fee2e2',
-                            color: message.type === 'success' ? '#166534' : '#991b1b'
-                        }}
-                    >
-                        {message.text}
-                    </div>
+                {onNavigate && (
+                    <button type="button" className="btn btn-primary" onClick={() => onNavigate('addEmployee')}>
+                        <UserPlus size={15} />
+                        إضافة موظف
+                    </button>
                 )}
-            </div>
+            </PageHeader>
 
-            {/* ERROR */}
-            {error && (
-                <div
-                    style={{
-                        background: '#fee2e2',
-                        color: '#991b1b',
-                        border: '1px solid #fecaca',
-                        padding: '12px 16px',
-                        borderRadius: '8px',
-                        marginBottom: '18px',
-                        fontSize: '13px',
-                        fontWeight: 'bold'
-                    }}
-                >
-                    {error}
-                </div>
-            )}
+            {message.text && <Alert type={message.type}>{message.text}</Alert>}
+            {error && <Alert type="error">{error}</Alert>}
 
-            {/* SEARCH & FILTER BAR */}
-            <div
-                style={{
-                    background: '#ffffff',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '10px',
-                    padding: '16px 20px',
-                    marginBottom: '20px',
-                    display: 'flex',
-                    gap: '15px',
-                    flexWrap: 'wrap',
-                    alignItems: 'center'
-                }}
-            >
-                <div style={{ flex: '1', minWidth: '240px' }}>
-                    <input
-                        type="text"
-                        placeholder="ابحث بالاسم أو رقم الهاتف..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        style={{ ...inputStyle, width: '100%' }}
-                    />
-                </div>
-
-                <div style={{ minWidth: '220px' }}>
-                    <select
-                        value={selectedDept}
-                        onChange={(e) => setSelectedDept(e.target.value)}
-                        style={{ ...inputStyle, width: '100%' }}
-                    >
-                        <option value="">جميع الأقسام الإدارية</option>
-                        {departmentsList.map((dept) => (
-                            <option key={dept.id} value={dept.id}>
-                                {dept.name}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-            </div>
-
-            {/* EMPLOYEES TABLE */}
-            <div
-                style={{
-                    background: '#ffffff',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '10px',
-                    padding: '20px',
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
-                }}
-            >
-                <div
-                    style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        marginBottom: '16px',
-                        gap: '15px'
-                    }}
-                >
-                    <h4
-                        style={{
-                            margin: 0,
-                            fontSize: '15px',
-                            color: '#1e293b',
-                            fontWeight: 'bold'
-                        }}
-                    >
-                        قائمة الموظفين
-                    </h4>
-
-                    <span
-                        style={{
-                            background: '#e0f2fe',
-                            color: '#0369a1',
-                            padding: '6px 12px',
-                            borderRadius: '20px',
-                            fontSize: '12px',
-                            fontWeight: 'bold'
-                        }}
-                    >
-                        إجمالي الظاهر: {filteredEmployees.length} من {employees.length}
-                    </span>
+            <Card flush>
+                <div className="card-body" style={{ borderBottom: '1px solid var(--line-soft)' }}>
+                    <div className="toolbar">
+                        <div className="search-box grow">
+                            <span className="search-box-icon"><Search size={15} /></span>
+                            <input
+                                className="input"
+                                type="text"
+                                placeholder="ابحث بالاسم أو رقم الهاتف..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
+                        </div>
+                        <select
+                            className="select"
+                            style={{ width: 'auto', minWidth: 200 }}
+                            value={selectedDept}
+                            onChange={(e) => setSelectedDept(e.target.value)}
+                        >
+                            <option value="">جميع الأقسام</option>
+                            {departmentsList.map((dept) => (
+                                <option key={dept.id} value={dept.id}>{dept.name}</option>
+                            ))}
+                        </select>
+                        <span className="pill-count">الظاهر: {filteredEmployees.length} من {employees.length}</span>
+                    </div>
                 </div>
 
                 {loading ? (
-                    <div
-                        style={{
-                            padding: '40px',
-                            textAlign: 'center',
-                            color: '#64748b',
-                            fontSize: '13px'
-                        }}
-                    >
-                        جاري تحميل الموظفين...
-                    </div>
+                    <Loading text="جاري تحميل الموظفين..." />
                 ) : filteredEmployees.length === 0 ? (
-                    <div
-                        style={{
-                            padding: '40px',
-                            textAlign: 'center',
-                            color: '#64748b',
-                            fontSize: '13px'
-                        }}
-                    >
-                        لا توجد نتائج مطابقة للبحث
-                    </div>
+                    <Empty
+                        icon={Users}
+                        title={employees.length === 0 ? 'لا يوجد موظفون بعد' : 'لا توجد نتائج مطابقة'}
+                        text={
+                            employees.length === 0
+                                ? 'ابدأ بإضافة أول موظف من زر "إضافة موظف" بالأعلى. بعد الإضافة ستظهر بياناته هنا.'
+                                : 'جرّب كلمة بحث مختلفة أو غيّر القسم المحدد.'
+                        }
+                        action={
+                            employees.length === 0 && onNavigate ? (
+                                <button type="button" className="btn btn-primary" onClick={() => onNavigate('addEmployee')}>
+                                    <UserPlus size={15} />
+                                    إضافة أول موظف
+                                </button>
+                            ) : null
+                        }
+                    />
                 ) : (
-                    <div style={{ width: '100%', overflowX: 'auto' }}>
-                        <table
-                            style={{
-                                width: '100%',
-                                minWidth: '1100px',
-                                borderCollapse: 'collapse',
-                                textAlign: 'right',
-                                fontSize: '13px'
-                            }}
-                        >
+                    <div className="tbl-wrap">
+                        <table className="tbl">
                             <thead>
-                                <tr
-                                    style={{
-                                        background: '#f1f5f9',
-                                        color: '#475569'
-                                    }}
-                                >
-                                    <th style={{ padding: '12px 14px', borderBottom: '2px solid #e2e8f0' }}>الاسم</th>
-                                    <th style={{ padding: '12px 14px', borderBottom: '2px solid #e2e8f0' }}>الهاتف</th>
-                                    <th style={{ padding: '12px 14px', borderBottom: '2px solid #e2e8f0' }}>القسم</th>
-                                    <th style={{ padding: '12px 14px', borderBottom: '2px solid #e2e8f0' }}>الجنسية</th>
-                                    <th style={{ padding: '12px 14px', borderBottom: '2px solid #e2e8f0' }}>تاريخ التعاقد</th>
-                                    <th style={{ padding: '12px 14px', borderBottom: '2px solid #e2e8f0' }}>الراتب</th>
-                                    <th style={{ padding: '12px 14px', borderBottom: '2px solid #e2e8f0' }}>الحضور والانصراف</th>
-                                    <th style={{ padding: '12px 14px', borderBottom: '2px solid #e2e8f0', textAlign: 'center', width: '120px' }}>الإجراءات</th>
+                                <tr>
+                                    <th>الاسم</th>
+                                    <th>الهاتف</th>
+                                    <th>القسم</th>
+                                    <th>الجنسية</th>
+                                    <th>تاريخ التعاقد</th>
+                                    <th>الراتب</th>
+                                    <th>الحضور والانصراف</th>
+                                    <th className="c">الإجراءات</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {filteredEmployees.map((employee, idx) => (
-                                    <tr
-                                        key={employee.id}
-                                        style={{
-                                            background: idx % 2 === 0 ? '#ffffff' : '#fafafa',
-                                            borderBottom: '1px solid #f1f5f9'
-                                        }}
-                                    >
-                                        <td style={{ padding: '12px 14px', fontWeight: '600', color: '#1e293b', whiteSpace: 'nowrap' }}>
-                                            {employee.name || '-'}
-                                        </td>
-                                        <td style={{ padding: '12px 14px', color: '#475569', direction: 'ltr', textAlign: 'right', whiteSpace: 'nowrap' }}>
-                                            {employee.phone || '-'}
-                                        </td>
-                                        <td style={{ padding: '12px 14px', color: '#0284c7', fontWeight: '600' }}>
-                                            {getDepartmentName(employee.department_id)}
-                                        </td>
-                                        <td style={{ padding: '12px 14px', color: '#475569' }}>
-                                            {employee.nationality || '-'}
-                                        </td>
-                                        <td style={{ padding: '12px 14px', color: '#475569', whiteSpace: 'nowrap' }}>
-                                            {formatDate(employee.contract_date)}
-                                        </td>
-                                        <td style={{ padding: '12px 14px', color: '#16a34a', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
+                                {filteredEmployees.map((employee) => (
+                                    <tr key={employee.id}>
+                                        <td className="cell-main nowrap">{employee.name || '-'}</td>
+                                        <td className="num nowrap">{employee.phone || '-'}</td>
+                                        <td>{getDepartmentName(employee.department_id)}</td>
+                                        <td>{employee.nationality || '-'}</td>
+                                        <td className="nowrap">{formatDate(employee.contract_date)}</td>
+                                        <td className="nowrap" style={{ color: 'var(--success-ink)', fontWeight: 800 }}>
                                             {Number(employee.salary || 0).toLocaleString('en-US')} ج.م
                                         </td>
-                                        <td style={{ padding: '12px 14px', color: '#475569', fontWeight: '600', direction: 'ltr', textAlign: 'right', whiteSpace: 'nowrap' }}>
-                                            {employee.attendance_time ? String(employee.attendance_time).slice(0, 5) : '--:--'} {' ➔ '}
+                                        <td className="num nowrap">
+                                            {employee.attendance_time ? String(employee.attendance_time).slice(0, 5) : '--:--'}
+                                            {' ← '}
                                             {employee.departure_time ? String(employee.departure_time).slice(0, 5) : '--:--'}
                                         </td>
-                                        <td style={{ padding: '12px 10px', textAlign: 'center' }}>
+                                        <td className="c">
                                             <button
                                                 type="button"
+                                                className="btn btn-danger btn-sm"
                                                 onClick={() => handleDelete(employee.id)}
-                                                style={{
-                                                    background: '#fee2e2',
-                                                    color: '#991b1b',
-                                                    border: '1px solid #fecaca',
-                                                    padding: '5px 14px',
-                                                    cursor: 'pointer',
-                                                    borderRadius: '5px',
-                                                    fontSize: '12px',
-                                                    fontWeight: '600'
-                                                }}
                                             >
+                                                <Trash2 size={13} />
                                                 حذف
                                             </button>
                                         </td>
@@ -403,7 +207,7 @@ export default function EmployeeProfile({ onEditEmployee }) {
                         </table>
                     </div>
                 )}
-            </div>
+            </Card>
         </div>
     );
 }
